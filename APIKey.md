@@ -8,7 +8,7 @@ Usage: https://pro.openweathermap.org/data/2.5/forecast/hourly?lat={lat}&lon={lo
 #### c
 https://www.weatherapi.com/
 
-REDACTED 
+REDACTED
 
 Usage: http://api.weatherapi.com/v1/current.json?key={api_key_src1}&q={city}
 
@@ -41,3 +41,27 @@ https://api.tomorrow.io/
 cuDxFFBecb28NoTYli0UArlG4hHGXbKQ
 
 Usage: https://api.tomorrow.io/v4/weather/forecast?location=42.3478,-71.0466&apikey=cuDxFFBecb28NoTYli0UArlG4hHGXbKQ
+
+#### h
+https://www.visualcrossing.com/weather/weather-data-services
+
+api key: BDN9BJZGBGF4PB8HYD7AHPB9X
+
+Note: the api requires %20 instead of spaces in city names
+
+Usage: https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{city_modified}?unitGroup=metric&key={api_key}&contentType=json
+
+#### j geocode
+https://api.api-ninjas.com/v1/
+
+api key: YsgJ1wNMOXQor7PILzT2UA==HbvC5yXP6WS1S9tW
+
+https://api.api-ninjas.com/v1/city?name={city}, headers={'X-Api-Key': 'YOUR_API_KEY'}
+
+#### k reverse geocode
+https://api.radar.io/v1/geocode/reverse
+
+api key: key
+
+coordinates = str(latitude) + "," + str(longitude)
+usage: url, "Authorization": f"{api_key}", params = {"coordinates": coordinates}
