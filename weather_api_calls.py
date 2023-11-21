@@ -111,10 +111,9 @@ app = Flask(__name__)
 
 @app.route('/weatherbycity/<cityName>', methods=['GET'])
 def getWeatherByCity(cityName):
-    print("weatherapi")
+
     # Call weatherapi.com
     weatherapi_forcast(cityName)
-    print("geocode")
     # finds the latitude and longitude
     geocode(cityName)
 
