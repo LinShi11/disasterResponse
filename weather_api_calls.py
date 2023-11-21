@@ -2,6 +2,8 @@ from flask import Flask, request, Response
 import jsonpickle
 import requests
 import json
+import pika
+import sys
 
 def weathergov(lat, lon):
     # For Statewide alert
@@ -139,7 +141,14 @@ def getWeatherByCity(cityName):
 
     data = weatherapi_forecast(cityName, data)
 
-    print(data) # Test the output
+    #print(data) # Test the output
+    converted_data = json.dumps(data)
+    user_id = "1" # TODO: Change this to database retrieval later
+    channel.basic_publish(exchange='direct_logs', routing_key=user_id, body=converted_data)
+    #print(" [x] Sent %r:%r" % (user_id, converted_data))
+    
+    response_pickled = jsonpickle.encode(data)
+    return Response(response=response_pickled, status=200, mimetype="application/json")
 
     # Call visualcrossing.com
     visualcrossing_current(cityName)
@@ -163,7 +172,10 @@ def getWeatherByCordinates(latitude, longitude):
 
 
 
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+channel = connection.channel()
 
+channel.exchange_declare(exchange='direct_logs', exchange_type='direct')
 
 # start flask app
 app.run(host="0.0.0.0", port=5000)
