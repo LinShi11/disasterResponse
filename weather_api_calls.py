@@ -35,9 +35,7 @@ def weathergov(lat, lon):
     state = "MT"
     url = f'https://api.weather.gov/alerts/active?area={state}'
     response = requests.get(url)
-
     state_alert = []
-
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
         weather_info = response.json()
@@ -60,12 +58,15 @@ def weatherapi_forcast(city):
     url = f'http://api.weatherapi.com/v1/forecast.json?key={api_key}&q={city_modified}&days={num_days}&aqi={air_quality}&alerts={alert}'
 
     response = requests.get(url)
-    dict = {}
+    alert_dict = []
 
     if response.status_code == 200:
         weather_info = response.json()
-        for key, value in weather_info['alerts'].items():
-            dict[key] = value
+        for element in weather_info['alerts']:
+            alert = {}
+            for key, value in element.items():
+                alert[key] = value
+            alert_dict.append(alert)
         # for key, value in dict.items():
         #     print(key)
         #     print(value)
@@ -73,8 +74,9 @@ def weatherapi_forcast(city):
         ## see https://www.weatherapi.com/docs/ and look for weather alerts for alert examples
 
 def geocode(city):
+    # Finding: not that sensitive. Will give the city location at the very least
     api_key = "key"
-    address = "1242 Lewis ave billings mt"
+    address = "1242 Le ave. bilLings, Mt 59102"
     url = f'https://api.radar.io/v1/geocode/forward'
     query_params = {"query": f"{address}"}
     headers = {"Authorization": f"{api_key}"}
@@ -83,6 +85,7 @@ def geocode(city):
 
     if response.status_code == 200:
         data = response.json()
+        print(data)
         latitude = data['addresses'][0]['latitude']
         longitude = data['addresses'][0]['longitude']
 
@@ -111,8 +114,8 @@ def getWeatherByCity(cityName):
     # Call weatherapi.com
     # weatherapi_forcast(cityName)
     # finds the latitude and longitude
-    # geocode(cityName)
-    weathergov(1, 1)
+    geocode(cityName)
+    # weathergov(1, 1)
 
 
 
