@@ -30,34 +30,25 @@ def openweathermap(lat, lon):
 
 
 def weathergov(lat, lon):
-    # Current weather
-    # Not available
 
-    # Forecast
-    # 12hr forecast available
-    url = f'https://api.weather.gov/points/{lat},{lon}'
+    # Note: all states must be in abbreviation
+    state = "MT"
+    url = f'https://api.weather.gov/alerts/active?area={state}'
     response = requests.get(url)
+
+    state_alert = []
 
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
-        forecast_url = response["properties"]["forecast"]
-        forecast_response = requests.get(forecast_url)
-        if forecast_response.status_code == 200:
+        weather_info = response.json()
+        for element in weather_info['features']:
+            alert = {}
+            for key, value in element['properties'].items():
+                alert[key] = value
+            state_alert.append(alert)
+        print(len(state_alert))
+        # print(weather_info['features'][0])
 
-            weather_info = response.json()
-            # weather_info["properties"]["periods"]
-            # temp_min = weather_info
-            # temp_max = weather_info
-            # temp_feels_like = weather_info
-            # wind_speed = weather_info
-            # snowfall = weather_info
-            # rainfall = weather_info
-            # uv_index = weather_info
-            # visibility = weather_info
-            # sunrise = weather_info
-            # sunset = weather_info
-            # alerts = weather_info
-            # air_quality = weather_info
 
 
 def weatherapi_forcast(city):
@@ -69,9 +60,15 @@ def weatherapi_forcast(city):
     url = f'http://api.weatherapi.com/v1/forecast.json?key={api_key}&q={city_modified}&days={num_days}&aqi={air_quality}&alerts={alert}'
 
     response = requests.get(url)
+    dict = {}
 
     if response.status_code == 200:
         weather_info = response.json()
+        for key, value in weather_info['alerts'].items():
+            dict[key] = value
+        # for key, value in dict.items():
+        #     print(key)
+        #     print(value)
         ## see weatherapi_response.json for each information
         ## see https://www.weatherapi.com/docs/ and look for weather alerts for alert examples
 
@@ -108,14 +105,14 @@ def reverse_geocode(latitude, longitude):
 # Initialize the Flask application
 app = Flask(__name__)
 
-
 @app.route('/weatherbycity/<cityName>', methods=['GET'])
 def getWeatherByCity(cityName):
 
     # Call weatherapi.com
-    weatherapi_forcast(cityName)
+    # weatherapi_forcast(cityName)
     # finds the latitude and longitude
-    geocode(cityName)
+    # geocode(cityName)
+    weathergov(1, 1)
 
 
 
@@ -127,9 +124,8 @@ def getWeatherByCordinates(latitude, longitude):
 
     # Call API endpoints
     openweathermap(latitude, longitude)
-    weathergov(latitude, longitude)
 
-    reverse_geocode(latitude, longitude)
+    # reverse_geocode(latitude, longitude)
 
 
 
