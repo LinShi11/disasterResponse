@@ -1,0 +1,83 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.weather-box {
+  border: 1px solid #ccc;
+  padding: 0px 5px 2px 5px;
+  border-radius: 5px;
+  width: 250px;
+  height: 300px;
+  margin-left: 20px;
+  overflow-x: scroll;
+  overflow-y: scroll;
+  
+}
+
+.flex-container {
+  display: flex;
+  margin-top: 20px;
+  justify-content: center; /* Adjust as needed */
+}
+
+.flex-item {
+  width: 200px; /* Adjust width as needed */
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+.flex-container-forecast {
+  display: flex;
+  margin-top: 20px;
+  justify-content: start; /* Adjust as needed */
+  /* overflow-x: auto;  */
+  overflow-y: scroll;
+  overflow-block: auto;
+  margin-left: 10px;
+}
+
+.weather-box-forecast {
+  border: 1px solid #979696;
+  padding: 0px 2px 2px 2px;
+  border-radius: 5px;
+  /* width: 500px;
+  height: 300px; */
+  margin-left: 5px;
+  flex: 0 0 180px;
+  
+}

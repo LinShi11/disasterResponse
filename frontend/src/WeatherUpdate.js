@@ -1,0 +1,150 @@
+
+import React, { useState, useEffect } from 'react'
+import './App.css';
+
+function WeatherUpdate(){
+    const [data, setData] = useState({});
+    const [city, setCity] = useState('');
+    const dayOneHours = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"];
+
+    useEffect(() => {
+    fetch('/home')
+        .then(response => response.json())
+        .then(json => setData(json))
+        .catch(error => console.error(error));
+    }, []);  
+
+    const weathercheck = (e) => {
+
+        e.preventDefault();
+        setCity(city);
+        // const response = fetch(`/weatherbycity/${city}`);
+        // const newData = response.json();
+        // setData(newData); 
+
+        fetch(`/weatherbycity/${city}`)
+        .then(response => response.json())
+        .then(json => setData(json))
+        .catch(error => console.error(error));  
+    }  
+
+    return (
+        <div>
+            <br/>
+            <br/>
+            <form onSubmit={weathercheck}>
+                <label>
+                    <input 
+                        type="text"  
+                        required
+                        name={city}
+                        value={city}
+                        placeholder="Enter city name"
+                        onChange={(e) => setCity(e.target.value)}
+                    />
+                </label>
+                <input type="submit" value="Get Weather Data" />
+            </form>
+
+            {/* <p>{JSON.stringify(data)}</p>  */}
+            {Object.keys(data).length > 0 && data !== "Hello World" && 
+                (
+                <div>
+
+                    <div className="flex-container">
+                        <div className="weather-box" align="left">
+                            <h3>Current Weather <img src={data.current.icon} alt="Weather Icon" style={{ width: '20%', height: '20%' }} /> </h3>
+                            <p>Region: {data.current.region}</p>
+                            <p>Condition:  {data.current.condition}</p>
+                            <p>Current Temp: {data.current.current_temp}</p>
+                            <p>Feels like: {data.current.feels_like}</p>
+                            <p>Air quality index:  {data.current.air_quality_idx}</p>
+                            <p>Rain (mm): {data.current.rain_mm}</p>
+                            <p>UV: {data.current.uv}</p>
+                            <p>Wind Speed: {data.current.wind_speed}</p>
+                        </div>
+
+                        <div className="weather-box" align="left">
+                            <h3>{data["0"].date} <img src={data["0"].icon} alt="Weather Icon" style={{ width: '20%', height: '20%' }} /> </h3>
+                            <p>Condition:  {data["0"].condition}</p>
+                            <p>Maximum Temp: {data["0"].maxtemp}</p>
+                            <p>Minimum Temp: {data["0"].mintemp}</p>
+                            <p>Average Temp: {data["0"].avgtemp}</p>
+                            <p>Air quality index:  {data["0"].air_quality_today}</p>
+                            <p>UV: {data["0"].uv}</p>
+                            <p>Wind Speed: {data["0"].maxwind}</p>
+                            <p>Chance of Rain: {data["0"].rain_chance}</p>
+                            <p>Chance of Snow: {data["0"].snow_chance}</p>
+                            <p>Sunrise: {data["0"].sunrise}</p>
+                            <p>Sunset: {data["0"].sunset}</p> 
+                        </div>
+
+                        <div className="weather-box" align="left">
+                            <h3>{data["1"].date} <img src={data["1"].icon} alt="Weather Icon" style={{ width: '20%', height: '20%' }} /> </h3>
+                            <p>Condition:  {data["1"].condition}</p>
+                            <p>Maximum Temp: {data["1"].maxtemp}</p>
+                            <p>Minimum Temp: {data["1"].mintemp}</p>
+                            <p>Average Temp: {data["1"].avgtemp}</p>
+                            <p>Air quality index:  {data["1"].air_quality_today}</p>
+                            <p>UV: {data["1"].uv}</p>
+                            <p>Wind Speed: {data["1"].maxwind}</p>
+                            <p>Chance of Rain: {data["1"].rain_chance}</p>
+                            <p>Chance of Snow: {data["1"].snow_chance}</p>
+                            <p>Sunrise: {data["1"].sunrise}</p>
+                            <p>Sunset: {data["1"].sunset}</p>            
+                        </div>
+
+                    </div>
+                    {/* {JSON.stringify(data, null, 2)} */}
+                    <h3>Forecast on {data["0"].date}</h3>
+                    <div className="flex-container-forecast">
+                        {dayOneHours.map((hour) => (
+                            <div className="weather-box-forecast" align="left" key={hour}>
+                                <h4>{data["0"][hour].time.split(' ')[1]} <img src={data["0"][hour].icon} alt="Weather Icon" style={{ width: '20%', height: '20%' }} /> </h4>
+                                <p>AQI:  {data["0"][hour].air_quality}</p>
+                                <p>Rain: {data["0"][hour].chance_of_rain}</p>
+                                <p>Snow: {data["0"][hour].chance_of_snow}</p>
+                                <p>Condition:  {data["0"][hour].condition}</p>
+                                <p>Feels like: {data["0"][hour].feelslike_c}</p>
+                                <p>Temp: {data["0"][hour].temp_c}</p>
+                                <p>UV: {data["0"][hour].uv}</p>
+                                <p>Wind: {data["0"][hour].wind_kph}</p>
+
+                            </div>    
+
+                        ))}
+
+                    </div>
+                    <h3>Forecast on {data["1"].date}</h3>
+                    <div className="flex-container-forecast">
+                        {dayOneHours.map((hour) => (
+                            <div className="weather-box-forecast" align="left" key={hour}>
+                                <h4>{data["1"][hour].time.split(' ')[1]} <img src={data["1"][hour].icon} alt="Weather Icon" style={{ width: '20%', height: '20%' }} /> </h4>
+                                <p>AQI:  {data["1"][hour].air_quality}</p>
+                                <p>Rain: {data["1"][hour].chance_of_rain}</p>
+                                <p>Snow: {data["1"][hour].chance_of_snow}</p>
+                                <p>Condition:  {data["1"][hour].condition}</p>
+                                <p>Feels like: {data["1"][hour].feelslike_c}</p>
+                                <p>Temp: {data["1"][hour].temp_c}</p>
+                                <p>UV: {data["1"][hour].uv}</p>
+                                <p>Wind: {data["1"][hour].wind_kph}</p>
+
+                            </div>    
+
+                        ))}
+
+                    </div>
+                    
+
+
+                </div>
+                )
+            }
+            <br/>
+            <br/>
+
+        </div>
+    )
+}
+
+export default WeatherUpdate;

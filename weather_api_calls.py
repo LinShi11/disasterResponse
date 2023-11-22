@@ -1,4 +1,4 @@
-from flask import Flask, request, Response
+from flask import Flask, request, Response, jsonify
 import jsonpickle
 import requests
 
@@ -137,9 +137,14 @@ def reverse_geocode(latitude, longitude):
 # Initialize the Flask application
 app = Flask(__name__)
 
+@app.route('/home', methods=['GET'])
+def home():
+    return jsonify("Hello World")
+
 @app.route('/weatherbycity/<cityName>', methods=['GET'])
 def getWeatherByCity(cityName):
-
+    data = {}
+    print(cityName)
     # Call weatherapi.com
     data = weatherapi_current(cityName, data)
 
@@ -150,9 +155,12 @@ def getWeatherByCity(cityName):
     # user_id = "1" # TODO: Change this to database retrieval later
     # channel.basic_publish(exchange='direct_logs', routing_key=user_id, body=converted_data)
     #print(" [x] Sent %r:%r" % (user_id, converted_data))
+    #print(data)
     
-    response_pickled = jsonpickle.encode(data)
-    return Response(response=response_pickled, status=200, mimetype="application/json")
+    # response_pickled = jsonpickle.encode(data)
+    # return Response(response=response_pickled, status=200, mimetype="application/json")
+    #return jsonify(data, status=200, mimetype='application/json')
+    return data
 
     # Call visualcrossing.com
     visualcrossing_current(cityName)
