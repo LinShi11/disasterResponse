@@ -4,6 +4,7 @@ import './App.css';
 
 function AuthoritiesUpdate(){
     const [dataWeather, setDataWeather] = useState({});
+    const [stateAlert, setStateAlert] = useState({});
     const [city, setCity] = useState('');
     const dayOneHours = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"];
 
@@ -22,29 +23,80 @@ function AuthoritiesUpdate(){
         .then(response => response.json())
         .then(json => setDataWeather(json))
         .catch(error => console.error(error));
+
+        fetch(`/weatherAlert/${city}`)
+        .then(response => response.json())
+        .then(json => setStateAlert(json))
+        .catch(error => console.error())
     }
 
+// TODO: clean the format up and make it more readable
     const renderAlerts = () => {
-    if (dataWeather.alerts && dataWeather.alerts.length > 0) {
-      return (
-        <div>
-          <h3>Alert Data for {city}</h3>
-          {dataWeather.alerts.map((alert, index) => (
-            <div key={index}>
-              <p>Alert {index + 1}: {alert}</p>
-            </div>
-          ))}
-        </div>
-      );
-    } else {
-      return (
-        <div>
-          <h3>Alert Data for {city}</h3>
-          <p>No alerts currently</p>
-        </div>
-      );
-    }
+      console.log("dataWeather structure:", dataWeather);
+  if (Array.isArray(dataWeather.alerts) && dataWeather.alerts.length > 0) {
+    return (
+      <div>
+        <h3>Alert Data for {city}</h3>
+        {dataWeather.alerts.map((alert, index) => (
+          <div key={index}>
+            <p>Alert {index + 1}:</p>
+            <p>Area: {alert.areas}</p>
+            <p>Category: {alert.category}</p>
+            <p>Certainty: {alert.certainty}</p>
+            <p>Description: {alert.desc}</p>
+            <p>Effective: {alert.effective}</p>
+            <p>Event: {alert.event}</p>
+            <p>Expires: {alert.expires}</p>
+            <p>headline: {alert.headline}</p>
+            <p>Instruction: {alert.instruction}</p>
+            <p>Note: {alert.note}</p>
+            <p>Severity: {alert.severity}</p>
+            <p>Urgency: {alert.urgency}</p>
+          </div>
+        ))}
+      </div>
+    );
+  } else {
+    return (
+      <div>
+        <h3>Alert Data for {city}</h3>
+        <p>No alerts currently</p>
+      </div>
+    );
   }
+}
+
+// TODO: clean the format up and make it more readable
+    const renderStateAlerts = () => {
+      console.log("state alert structure:", stateAlert)
+      if (stateAlert.length > 0){
+        return (
+          <div>
+            <h3>State-wide Alerts</h3>
+            {stateAlert.map((alert, index) => (
+              <div key={index}>
+              <p>Alert {index + 1}</p>
+              <p>Headline: {alert.headline}</p>
+              <p>Event: {alert.event}</p>
+              <p>Description: {alert.description}</p>
+              <p>Areas: {alert.areaDesc}</p>
+              <p>certainty: {alert.certainty}</p>
+              <p>Effective: {alert.effective}</p>
+              <p>Ends: {alert.ends}</p>
+              <p>Instruction: {alert.instruction}</p>
+              </div>
+            ))}
+          </div>
+        );
+      } else {
+        return (
+      <div>
+        <h3>State-wide Alerts</h3>
+        <p>No state-wide alerts currently</p>
+      </div>
+    );
+      }
+    }
 
     return (
         <div>
@@ -73,6 +125,7 @@ function AuthoritiesUpdate(){
               {/*dataWeather.alerts.length > 0 ? <p>Example: {dataWeather.alerts}</p> : <p>No current alert</p>*/}
 
                 {/* Render weather information from /weatherbycity/<city> */}
+                {renderStateAlerts()}
 
                 {/* Current Weather */}
                 <div className="flex-container">

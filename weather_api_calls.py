@@ -82,7 +82,7 @@ def weatherapi_forecast(city, data):
                 data[day][hour]["icon"] = weather_info["forecast"]["forecastday"][i]["hour"][j]["condition"]["icon"]
 
         all_alerts = []
-        for element in weather_info['alerts']:
+        for element in weather_info['alerts']['alert']:
             alert = {}
             for key, value in element.items():
                 alert[key] = value
@@ -90,10 +90,10 @@ def weatherapi_forecast(city, data):
         data["alerts"] = all_alerts
     return data
 
-def weathergov(lat, lon):
+def weathergov(state):
 
     # Note: all states must be in abbreviation
-    state = "MT"
+    state = "CO"
     url = f'https://api.weather.gov/alerts/active?area={state}'
     response = requests.get(url)
     state_alert = []
@@ -105,8 +105,8 @@ def weathergov(lat, lon):
             for key, value in element['properties'].items():
                 alert[key] = value
             state_alert.append(alert)
-        print(len(state_alert))
-        # print(weather_info['features'][0])
+    print(len(state_alert))
+    return state_alert
 
 
 def geocode(city):
@@ -175,16 +175,13 @@ def getWeatherByCity(cityName):
     geocode(cityName)
     # weathergov(1, 1)
 
-@app.route('/weatherbycoordinates/<float:latitude>,<float:longitude>', methods=['GET'])
-def getWeatherByCordinates(latitude, longitude):
-    # response = {'sum' : str(a + b)}
-    # response_pickled = jsonpickle.encode(response)
-    # return Response(response=response_pickled, status=200, mimetype="application/json")
+@app.route('/weatherAlert/<cityName>', methods=['GET'])
+def getStateAlert(cityName):
+    data = {}
+    # TODO: change cityName to the proper state
+    data = weathergov(cityName)
 
-    # Call API endpoints
-    openweathermap(latitude, longitude)
-
-    # reverse_geocode(latitude, longitude)
+    return data
 
 
 
