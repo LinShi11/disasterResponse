@@ -179,12 +179,8 @@ def getWeatherByCity(cityName):
     #return jsonify(data, status=200, mimetype='application/json')
     return data
 
-    # Call visualcrossing.com
-    visualcrossing_current(cityName)
-
-    # finds the latitude and longitude
     geocode(cityName)
-    # weathergov(1, 1)
+    
 
 @app.route('/weatherAlert/<cityName>', methods=['GET'])
 def getStateAlert(cityName):
@@ -200,7 +196,7 @@ def login():
     data = request.get_json()
     uname = data.get('username')
     pwd = data.get('password')
-    
+
     usersTable = db.users
     user_document = usersTable.find_one({"username": uname})
     if user_document:
@@ -208,18 +204,30 @@ def login():
 
         if bcrypt.checkpw(pwd.encode('utf-8'), hashed_password):
             return jsonify({"message": "Login successful", "token": "your_generated_token"})
-    
+
     # Authentication failed
     return jsonify({"message": "Invalid credentials"}), 401
 
 
-connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host='localhost'))
-channel = connection.channel()
 
-channel.queue_declare(queue='sign_up_queue', durable=True)
 
 def send_signup_message_to_rabbitmq(user_data):
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    channel = connection.channel()
+
+    channel.queue_declare(queue='sign_up_queue', durable=True)
+    print(user_data)
+    try:
+        json_data = json.dumps(user_data)
+    except Exception as e:
+        print(e)
+        
+    
+    print("Type of user_data:", type(user_data))
+    print("Type of json_data:", type(json_data))
+    print("Serialized user_data:", json_data)
+    print("Sending signup message to RabbitMQ")
+    # user_data = "helloworld"
     channel.basic_publish(exchange='',
                           routing_key='sign_up_queue',
                           body=json.dumps(user_data),
@@ -227,9 +235,11 @@ def send_signup_message_to_rabbitmq(user_data):
         delivery_mode=2,  # make message persistent
     ))
     print("Sent signup message to RabbitMQ")
+    connection.close()
 
 @app.route('/signup', methods=['POST'])
 def signup():
+    # TODO: make sure username is unqiue
     try:
         data = request.get_json()
         nm = data.get("name")
@@ -249,13 +259,14 @@ def signup():
         preference = data.get("preference")
         contact = preference.get("contact")
         alerts = preference.get("alerts")
-
+    
         # TODO: Use rabbitMQ instead of directly sending to the database
 
         userDocument = {
         "name": { "first": fname, "last": lname },
         "username": uname,
-        "password": bcrypt.hashpw(pwd.encode('utf-8'), bcrypt.gensalt()),
+        # "password": bcrypt.hashpw(pwd.encode('utf-8'), bcrypt.gensalt()),
+        "password": pwd,
         "address": { "door": door, "street name": street, "apt": apt, "city": city, "state": state, "zip": int(zipcode) },
         "phone": int(phone),
         "email": email,
@@ -264,8 +275,7 @@ def signup():
         # usersTable = db.users
         # usersTable.insert_one(userDocument)
 
-        send_signup_message_to_rabbitmq(userDocument)        
-
+        send_signup_message_to_rabbitmq(userDocument)
         return jsonify({"message": "Signup successful"})
     except:
         return jsonify({"message": "Signup failed"}), 401

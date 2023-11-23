@@ -1,5 +1,6 @@
 import pika
 import json
+import time
 
 from pymongo import MongoClient
 import datetime
@@ -21,7 +22,9 @@ channel.queue_declare(queue='sign_up_queue', durable=True)
 
 # Function to handle incoming messages
 def callback(ch, method, properties, body):
+    
     user_data = json.loads(body)
+    user_data["password"] = bcrypt.hashpw(user_data["password"].encode('utf-8'), bcrypt.gensalt())
     usersTable.insert_one(user_data)
 
     print("Inserted user data into MongoDB")
