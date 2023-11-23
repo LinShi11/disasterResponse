@@ -12,7 +12,7 @@ function WeatherUpdate(){
         .then(response => response.json())
         .then(json => setData(json))
         .catch(error => console.error(error));
-    }, []);  
+    }, []);
 
     const weathercheck = (e) => {
 
@@ -20,13 +20,13 @@ function WeatherUpdate(){
         setCity(city);
         // const response = fetch(`/weatherbycity/${city}`);
         // const newData = response.json();
-        // setData(newData); 
+        // setData(newData);
 
         fetch(`/weatherbycity/${city}`)
         .then(response => response.json())
         .then(json => setData(json))
-        .catch(error => console.error(error));  
-    }  
+        .catch(error => console.error(error));
+    }
 
     return (
         <div>
@@ -34,8 +34,8 @@ function WeatherUpdate(){
             <br/>
             <form onSubmit={weathercheck}>
                 <label>
-                    <input 
-                        type="text"  
+                    <input
+                        type="text"
                         required
                         name={city}
                         value={city}
@@ -47,7 +47,7 @@ function WeatherUpdate(){
             </form>
 
             {/* <p>{JSON.stringify(data)}</p>  */}
-            {Object.keys(data).length > 0 && data !== "Hello World" && 
+            {Object.keys(data).length > 0 && data !== "Hello World" &&
                 (
                 <div>
 
@@ -76,7 +76,7 @@ function WeatherUpdate(){
                             <p>Chance of Rain: {data["0"].rain_chance}</p>
                             <p>Chance of Snow: {data["0"].snow_chance}</p>
                             <p>Sunrise: {data["0"].sunrise}</p>
-                            <p>Sunset: {data["0"].sunset}</p> 
+                            <p>Sunset: {data["0"].sunset}</p>
                         </div>
 
                         <div className="weather-box" align="left">
@@ -91,7 +91,7 @@ function WeatherUpdate(){
                             <p>Chance of Rain: {data["1"].rain_chance}</p>
                             <p>Chance of Snow: {data["1"].snow_chance}</p>
                             <p>Sunrise: {data["1"].sunrise}</p>
-                            <p>Sunset: {data["1"].sunset}</p>            
+                            <p>Sunset: {data["1"].sunset}</p>
                         </div>
 
                     </div>
@@ -110,7 +110,7 @@ function WeatherUpdate(){
                                 <p>UV: {data["0"][hour].uv}</p>
                                 <p>Wind: {data["0"][hour].wind_kph}</p>
 
-                            </div>    
+                            </div>
 
                         ))}
 
@@ -129,12 +129,12 @@ function WeatherUpdate(){
                                 <p>UV: {data["1"][hour].uv}</p>
                                 <p>Wind: {data["1"][hour].wind_kph}</p>
 
-                            </div>    
+                            </div>
 
                         ))}
 
                     </div>
-                    
+
 
 
                 </div>

@@ -40,8 +40,8 @@ def weatherapi_current(city, data):
         curr_data["condition"] = weather_info["current"]["condition"]["text"]
         curr_data["icon"] = weather_info["current"]["condition"]["icon"]
         data["current"] = curr_data
-    
-    return data    
+
+    return data
 
 def weatherapi_forecast(city, data):
     num_days = 2
@@ -57,15 +57,15 @@ def weatherapi_forecast(city, data):
         weather_info = response.json()
         ## see weatherapi_response.json for each information
         ## see https://www.weatherapi.com/docs/ and look for weather alerts for alert examples
-        
+
         for i in range(num_days):
             day = str(i)
             data[day] = {}
             data[day]["date"] = weather_info["forecast"]["forecastday"][i]["date"]
             data[day]["maxtemp"] = weather_info["forecast"]["forecastday"][i]["day"]["maxtemp_c"]
             data[day]["mintemp"] = weather_info["forecast"]["forecastday"][i]["day"]["mintemp_c"]
-            data[day]["avgtemp"] = weather_info["forecast"]["forecastday"][i]["day"]["avgtemp_c"]  
-            data[day]["maxwind"] = weather_info["forecast"]["forecastday"][i]["day"]["maxwind_kph"]  
+            data[day]["avgtemp"] = weather_info["forecast"]["forecastday"][i]["day"]["avgtemp_c"]
+            data[day]["maxwind"] = weather_info["forecast"]["forecastday"][i]["day"]["maxwind_kph"]
             data[day]["precip"] = weather_info["forecast"]["forecastday"][i]["day"]["totalprecip_mm"]
             data[day]["snow"] = weather_info["forecast"]["forecastday"][i]["day"]["totalsnow_cm"]
             data[day]["rain_chance"] = weather_info["forecast"]["forecastday"][i]["day"]["daily_chance_of_rain"]
@@ -76,7 +76,7 @@ def weatherapi_forecast(city, data):
             data[day]["icon"] = weather_info["forecast"]["forecastday"][i]["day"]["condition"]["icon"]
             data[day]["sunrise"] = weather_info["forecast"]["forecastday"][i]["astro"]["sunrise"]
             data[day]["sunset"] = weather_info["forecast"]["forecastday"][i]["astro"]["sunset"]
-            
+
             for j in range(24):
                 hour = str(j)
                 data[day][hour] = {}
@@ -90,14 +90,21 @@ def weatherapi_forecast(city, data):
                 data[day][hour]["uv"] = weather_info["forecast"]["forecastday"][i]["hour"][j]["uv"]
                 data[day][hour]["air_quality"] = weather_info["forecast"]["forecastday"][i]["hour"][j]["air_quality"]["us-epa-index"]
                 data[day][hour]["condition"] = weather_info["forecast"]["forecastday"][i]["hour"][j]["condition"]["text"]
-                data[day][hour]["icon"] = weather_info["forecast"]["forecastday"][i]["hour"][j]["condition"]["icon"]        
+                data[day][hour]["icon"] = weather_info["forecast"]["forecastday"][i]["hour"][j]["condition"]["icon"]
 
-    return data 
+        all_alerts = []
+        for element in weather_info['alerts']['alert']:
+            alert = {}
+            for key, value in element.items():
+                alert[key] = value
+            all_alerts.append(alert)
+        data["alerts"] = all_alerts
+    return data
 
-def weathergov(lat, lon):
+def weathergov(state):
 
     # Note: all states must be in abbreviation
-    state = "MT"
+    state = "CO"
     url = f'https://api.weather.gov/alerts/active?area={state}'
     response = requests.get(url)
     state_alert = []
@@ -109,8 +116,8 @@ def weathergov(lat, lon):
             for key, value in element['properties'].items():
                 alert[key] = value
             state_alert.append(alert)
-        print(len(state_alert))
-        # print(weather_info['features'][0])
+    print(len(state_alert))
+    return state_alert
 
 
 def geocode(city):
@@ -155,7 +162,6 @@ def home():
 @app.route('/weatherbycity/<cityName>', methods=['GET'])
 def getWeatherByCity(cityName):
     data = {}
-    #print(cityName)
     # Call weatherapi.com
     data = weatherapi_current(cityName, data)
 
@@ -167,7 +173,7 @@ def getWeatherByCity(cityName):
     # channel.basic_publish(exchange='direct_logs', routing_key=user_id, body=converted_data)
     #print(" [x] Sent %r:%r" % (user_id, converted_data))
     #print(data)
-    
+
     # response_pickled = jsonpickle.encode(data)
     # return Response(response=response_pickled, status=200, mimetype="application/json")
     #return jsonify(data, status=200, mimetype='application/json')
@@ -180,18 +186,13 @@ def getWeatherByCity(cityName):
     geocode(cityName)
     # weathergov(1, 1)
 
+@app.route('/weatherAlert/<cityName>', methods=['GET'])
+def getStateAlert(cityName):
+    data = {}
+    # TODO: change cityName to the proper state
+    data = weathergov(cityName)
 
-
-@app.route('/weatherbycoordinates/<float:latitude>,<float:longitude>', methods=['GET'])
-def getWeatherByCordinates(latitude, longitude):
-    # response = {'sum' : str(a + b)}
-    # response_pickled = jsonpickle.encode(response)
-    # return Response(response=response_pickled, status=200, mimetype="application/json")
-
-    # Call API endpoints
-    openweathermap(latitude, longitude)
-
-    # reverse_geocode(latitude, longitude)
+    return data
 
 
 @app.route('/login', methods=['POST'])
