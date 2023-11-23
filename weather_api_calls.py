@@ -2,6 +2,17 @@ from flask import Flask, request, Response, jsonify
 import jsonpickle
 import requests
 
+import pika
+import sys
+import json
+from pymongo import MongoClient
+
+import bcrypt
+
+client = MongoClient('mongodb+srv://<username>:<password>@cluster0.tmwwaer.mongodb.net/?retryWrites=true&w=majority')
+
+db = client.disasterResponse
+
 
 def weatherapi_current(city, data):
     ## api key
@@ -144,7 +155,7 @@ def home():
 @app.route('/weatherbycity/<cityName>', methods=['GET'])
 def getWeatherByCity(cityName):
     data = {}
-    print(cityName)
+    #print(cityName)
     # Call weatherapi.com
     data = weatherapi_current(cityName, data)
 
@@ -181,6 +192,86 @@ def getWeatherByCordinates(latitude, longitude):
     openweathermap(latitude, longitude)
 
     # reverse_geocode(latitude, longitude)
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    uname = data.get('username')
+    pwd = data.get('password')
+    
+    usersTable = db.users
+    user_document = usersTable.find_one({"username": uname})
+    if user_document:
+        hashed_password = user_document.get('password')
+
+        if bcrypt.checkpw(pwd.encode('utf-8'), hashed_password):
+            return jsonify({"message": "Login successful", "token": "your_generated_token"})
+    
+    # Authentication failed
+    return jsonify({"message": "Invalid credentials"}), 401
+
+
+connection = pika.BlockingConnection(
+    pika.ConnectionParameters(host='localhost'))
+channel = connection.channel()
+
+channel.queue_declare(queue='sign_up_queue', durable=True)
+
+def send_signup_message_to_rabbitmq(user_data):
+    channel.basic_publish(exchange='',
+                          routing_key='sign_up_queue',
+                          body=json.dumps(user_data),
+                          properties=pika.BasicProperties(
+        delivery_mode=2,  # make message persistent
+    ))
+    print("Sent signup message to RabbitMQ")
+
+@app.route('/signup', methods=['POST'])
+def signup():
+    try:
+        data = request.get_json()
+        nm = data.get("name")
+        fname = nm.get("first")
+        lname = nm.get("last")
+        uname = data.get("username")
+        pwd = data.get("password")
+        addr = data.get("address")
+        door = addr.get("door")
+        street = addr.get("street name")
+        apt = addr.get("apt")
+        city = addr.get("city")
+        state = addr.get("state")
+        zipcode = addr.get("zip")
+        phone = data.get("phone")
+        email = data.get("email")
+        preference = data.get("preference")
+        contact = preference.get("contact")
+        alerts = preference.get("alerts")
+
+        # TODO: Use rabbitMQ instead of directly sending to the database
+
+        userDocument = {
+        "name": { "first": fname, "last": lname },
+        "username": uname,
+        "password": bcrypt.hashpw(pwd.encode('utf-8'), bcrypt.gensalt()),
+        "address": { "door": door, "street name": street, "apt": apt, "city": city, "state": state, "zip": int(zipcode) },
+        "phone": int(phone),
+        "email": email,
+        "preference": { "contact": contact, "alerts": alerts }
+        }
+        # usersTable = db.users
+        # usersTable.insert_one(userDocument)
+
+        send_signup_message_to_rabbitmq(userDocument)        
+
+        return jsonify({"message": "Signup successful"})
+    except:
+        return jsonify({"message": "Signup failed"}), 401
+
+
+# TODO: Duplicate the login and signup endpoints for authorities and rescue teams once the code is tested
+
 
 
 
