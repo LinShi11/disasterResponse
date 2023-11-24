@@ -216,16 +216,16 @@ def send_signup_message_to_rabbitmq(user_data):
     channel = connection.channel()
 
     channel.queue_declare(queue='sign_up_queue', durable=True)
-    print(user_data)
+    # print(user_data)
     try:
         json_data = json.dumps(user_data)
     except Exception as e:
         print(e)
         
     
-    print("Type of user_data:", type(user_data))
-    print("Type of json_data:", type(json_data))
-    print("Serialized user_data:", json_data)
+    # print("Type of user_data:", type(user_data))
+    # print("Type of json_data:", type(json_data))
+    # print("Serialized user_data:", json_data)
     print("Sending signup message to RabbitMQ")
     # user_data = "helloworld"
     channel.basic_publish(exchange='',
@@ -259,21 +259,16 @@ def signup():
         preference = data.get("preference")
         contact = preference.get("contact")
         alerts = preference.get("alerts")
-    
-        # TODO: Use rabbitMQ instead of directly sending to the database
 
         userDocument = {
         "name": { "first": fname, "last": lname },
         "username": uname,
-        # "password": bcrypt.hashpw(pwd.encode('utf-8'), bcrypt.gensalt()),
         "password": pwd,
         "address": { "door": door, "street name": street, "apt": apt, "city": city, "state": state, "zip": int(zipcode) },
         "phone": int(phone),
         "email": email,
         "preference": { "contact": contact, "alerts": alerts }
         }
-        # usersTable = db.users
-        # usersTable.insert_one(userDocument)
 
         send_signup_message_to_rabbitmq(userDocument)
         return jsonify({"message": "Signup successful"})
