@@ -17,7 +17,8 @@ function App() {
       <div className="App">
         <Bar />
         <Routes>
-          <Route path="/" element={<WeatherUpdate />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/home" element={<WeatherUpdate />} />
           <Route path="/authority" element={<AuthoritiesUpdate />} />
           <Route path="/login" element={<Login />} />
           <Route path="/logout" element={<Logout />} />

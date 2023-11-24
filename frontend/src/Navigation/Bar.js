@@ -41,7 +41,7 @@ function Bar() {
           <Nav className="me-auto">
           </Nav>
           <Nav className="navbar-brand me-3">
-            <Nav.Link href="/">Home</Nav.Link>
+            <Nav.Link href="/home">Home</Nav.Link>
             <Nav.Link className="ms-3" href="/alerts">Alerts</Nav.Link>
             <Nav.Link className="ms-3" href="/settings">Settings</Nav.Link>  
           </Nav>

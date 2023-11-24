@@ -8,6 +8,8 @@ import json
 from pymongo import MongoClient
 
 import bcrypt
+import flask
+import flask_login
 
 client = MongoClient('mongodb+srv://<username>:<password>@cluster0.tmwwaer.mongodb.net/?retryWrites=true&w=majority')
 
@@ -155,11 +157,45 @@ def reverse_geocode(latitude, longitude):
 # Initialize the Flask application
 app = Flask(__name__)
 
+app.secret_key = 'super secret string'  # Change this
+
+login_manager = flask_login.LoginManager()
+login_manager.init_app(app)
+
+usersTable = db.users
+users_uname = usersTable.find({},{"username":1})
+
+class User(flask_login.UserMixin):
+    pass
+
+
+@login_manager.user_loader
+def user_loader(username):
+    if username not in users_uname:
+        return
+
+    user = User()
+    user.id = username
+    return user
+
+
+@login_manager.request_loader
+def request_loader(request):
+    username = request.form.get('username')
+    if username not in users_uname:
+        return
+
+    user = User()
+    user.id = username
+    return user
+
+
 @app.route('/home', methods=['GET'])
 def home():
     return jsonify("Hello World")
 
 @app.route('/weatherbycity/<cityName>', methods=['GET'])
+@flask_login.login_required
 def getWeatherByCity(cityName):
     data = {}
     # Call weatherapi.com
@@ -203,12 +239,13 @@ def login():
         hashed_password = user_document.get('password')
 
         if bcrypt.checkpw(pwd.encode('utf-8'), hashed_password):
-            return jsonify({"message": "Login successful", "token": "your_generated_token"})
+            user = User()
+            user.id = uname
+            flask_login.login_user(user)
+            return jsonify({"message": "Login successful"})
 
     # Authentication failed
     return jsonify({"message": "Invalid credentials"}), 401
-
-
 
 
 def send_signup_message_to_rabbitmq(user_data):
@@ -280,7 +317,14 @@ def signup():
 
 
 
+@app.route('/logout')
+def logout():
+    flask_login.logout_user()
+    return flask.redirect(flask.url_for('login'))
 
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    return flask.redirect(flask.url_for('login'))
 
 
 

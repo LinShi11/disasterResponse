@@ -18,9 +18,6 @@ function WeatherUpdate(){
 
         e.preventDefault();
         setCity(city);
-        // const response = fetch(`/weatherbycity/${city}`);
-        // const newData = response.json();
-        // setData(newData);
 
         fetch(`/weatherbycity/${city}`)
         .then(response => response.json())

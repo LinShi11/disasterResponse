@@ -1,12 +1,25 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function Logout() {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        fetch('/logout') // Hit the logout endpoint
+            .then(() => {
+                navigate('/login'); // Redirect to the login page after logout
+            })
+            .catch((error) => {
+                console.error('Error logging out:', error);
+            });
+    }, [navigate]);
 
     return (
-        <h2> Logout Page</h2>
+        <div>
+            <p>Logging out...</p>
+            {/* Try to add a loading spinner or some other indicator here */}
+        </div>
     );
-
 }
 
 export default Logout;
