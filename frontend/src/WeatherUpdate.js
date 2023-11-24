@@ -32,19 +32,27 @@ function WeatherUpdate(){
         <div>
             <br/>
             <br/>
-            <form onSubmit={weathercheck}>
-                <label>
-                    <input
-                        type="text"
-                        required
-                        name={city}
-                        value={city}
-                        placeholder="Enter city name"
-                        onChange={(e) => setCity(e.target.value)}
-                    />
-                </label>
-                <input type="submit" value="Get Weather Data" />
-            </form>
+
+            <div className="d-flex justify-content-center">
+                <form className="d-flex" onSubmit={weathercheck}>
+                    <div className="input-group">
+                        <input
+                            className="form-control"
+                            type="text"
+                            required
+                            name={city}
+                            value={city}
+                            placeholder="Enter city name"
+                            onChange={(e) => setCity(e.target.value)}
+                            aria-label="Search"
+                        />
+                        <button className="btn btn-outline-success" type="submit">
+                            Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+
 
             {/* <p>{JSON.stringify(data)}</p>  */}
             {Object.keys(data).length > 0 && data !== "Hello World" &&
@@ -53,7 +61,7 @@ function WeatherUpdate(){
 
                     <div className="flex-container">
                         <div className="weather-box" align="left">
-                            <h3>Current Weather <img src={data.current.icon} alt="Weather Icon" style={{ width: '20%', height: '20%' }} /> </h3>
+                            <h4>Current Weather <img src={data.current.icon} alt="Weather Icon" style={{ width: '20%', height: '20%' }} /> </h4>
                             <p>Region: {data.current.region}</p>
                             <p>Condition:  {data.current.condition}</p>
                             <p>Current Temp: {data.current.current_temp}</p>
@@ -65,7 +73,7 @@ function WeatherUpdate(){
                         </div>
 
                         <div className="weather-box" align="left">
-                            <h3>{data["0"].date} <img src={data["0"].icon} alt="Weather Icon" style={{ width: '20%', height: '20%' }} /> </h3>
+                            <h4>{data["0"].date} <img src={data["0"].icon} alt="Weather Icon" style={{ width: '20%', height: '20%' }} /> </h4>
                             <p>Condition:  {data["0"].condition}</p>
                             <p>Maximum Temp: {data["0"].maxtemp}</p>
                             <p>Minimum Temp: {data["0"].mintemp}</p>
@@ -80,7 +88,7 @@ function WeatherUpdate(){
                         </div>
 
                         <div className="weather-box" align="left">
-                            <h3>{data["1"].date} <img src={data["1"].icon} alt="Weather Icon" style={{ width: '20%', height: '20%' }} /> </h3>
+                            <h4>{data["1"].date} <img src={data["1"].icon} alt="Weather Icon" style={{ width: '20%', height: '20%' }} /> </h4>
                             <p>Condition:  {data["1"].condition}</p>
                             <p>Maximum Temp: {data["1"].maxtemp}</p>
                             <p>Minimum Temp: {data["1"].mintemp}</p>
@@ -96,11 +104,11 @@ function WeatherUpdate(){
 
                     </div>
                     {/* {JSON.stringify(data, null, 2)} */}
-                    <h3>Forecast on {data["0"].date}</h3>
+                    <h4>Forecast on {data["0"].date}</h4>
                     <div className="flex-container-forecast">
                         {dayOneHours.map((hour) => (
                             <div className="weather-box-forecast" align="left" key={hour}>
-                                <h4>{data["0"][hour].time.split(' ')[1]} <img src={data["0"][hour].icon} alt="Weather Icon" style={{ width: '20%', height: '20%' }} /> </h4>
+                                <h5>{data["0"][hour].time.split(' ')[1]} <img src={data["0"][hour].icon} alt="Weather Icon" style={{ width: '20%', height: '20%' }} /> </h5>
                                 <p>AQI:  {data["0"][hour].air_quality}</p>
                                 <p>Rain: {data["0"][hour].chance_of_rain}</p>
                                 <p>Snow: {data["0"][hour].chance_of_snow}</p>
@@ -115,11 +123,11 @@ function WeatherUpdate(){
                         ))}
 
                     </div>
-                    <h3>Forecast on {data["1"].date}</h3>
+                    <h4>Forecast on {data["1"].date}</h4>
                     <div className="flex-container-forecast">
                         {dayOneHours.map((hour) => (
                             <div className="weather-box-forecast" align="left" key={hour}>
-                                <h4>{data["1"][hour].time.split(' ')[1]} <img src={data["1"][hour].icon} alt="Weather Icon" style={{ width: '20%', height: '20%' }} /> </h4>
+                                <h5>{data["1"][hour].time.split(' ')[1]} <img src={data["1"][hour].icon} alt="Weather Icon" style={{ width: '20%', height: '20%' }} /> </h5>
                                 <p>AQI:  {data["1"][hour].air_quality}</p>
                                 <p>Rain: {data["1"][hour].chance_of_rain}</p>
                                 <p>Snow: {data["1"][hour].chance_of_snow}</p>
