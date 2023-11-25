@@ -81,3 +81,67 @@
   flex: 0 0 180px;
   
 }
+.centered-container-login {
+  width: 300px; /* Adjust the width as needed */
+  height: 300px; /* Adjust the height as needed */
+  border: 1px solid #353434; /* Border style and color */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto; /* Centers the div horizontally */
+  margin-top: 100px; /* Adjust the top margin for vertical centering */
+}
+
+.centered-container-signup {
+  width: 500px; /* Adjust the width as needed */
+  height: 650px; /* Adjust the height as needed */
+  border: 1px solid #000; /* Border style and color */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto; /* Centers the div horizontally */
+  margin-top: 100px; /* Adjust the top margin for vertical centering */
+}
+
+.input-box {
+  width: 90%; /* Input box width as 80% of the container */
+  padding: 10px;
+  margin-bottom: 10px;
+  box-sizing: border-box; /* Includes padding and border in the width calculation */
+}
+
+.m-top{
+  margin-top: 20px;
+}
+
+.m-bot{
+  margin-bottom: 5px;
+}
+
+.centered-container-signup .input-group {
+  display: flex;
+  flex-wrap: wrap;
+  width: 90%;
+  padding: 10px;
+}
+
+.centered-container-signup .input-group input {
+  flex: 1;
+  margin-right: 5px; /* Adjust the spacing between the input fields */
+}
+
+.centered-container-signup .input-group input:last-child {
+  margin-right: 0; /* Remove right margin for the last input field */
+}
+
+.margin-top{
+  margin-top: 5px;
+}
+
+.input-box-login {
+  width: 100%; /* Input box width as 80% of the container */
+  padding: 10px;
+  margin-bottom: 10px;
+  box-sizing: border-box; /* Includes padding and border in the width calculation */
+}

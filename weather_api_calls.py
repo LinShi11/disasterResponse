@@ -8,6 +8,8 @@ import json
 from pymongo import MongoClient
 
 import bcrypt
+import flask
+import flask_login
 
 client = MongoClient('mongodb+srv://<username>:<password>@cluster0.tmwwaer.mongodb.net/?retryWrites=true&w=majority')
 
@@ -155,6 +157,39 @@ def reverse_geocode(latitude, longitude):
 # Initialize the Flask application
 app = Flask(__name__)
 
+app.secret_key = 'super secret string'  # Change this
+
+login_manager = flask_login.LoginManager()
+login_manager.init_app(app)
+
+usersTable = db.users
+users_uname = usersTable.find({},{"username":1})
+
+class User(flask_login.UserMixin):
+    pass
+
+
+@login_manager.user_loader
+def user_loader(username):
+    if username not in users_uname:
+        return
+
+    user = User()
+    user.id = username
+    return user
+
+
+@login_manager.request_loader
+def request_loader(request):
+    username = request.form.get('username')
+    if username not in users_uname:
+        return
+
+    user = User()
+    user.id = username
+    return user
+
+
 @app.route('/home', methods=['GET'])
 def home():
     return jsonify("Hello World")
@@ -203,12 +238,13 @@ def login():
         hashed_password = user_document.get('password')
 
         if bcrypt.checkpw(pwd.encode('utf-8'), hashed_password):
-            return jsonify({"message": "Login successful", "token": "your_generated_token"})
+            # user = User()
+            # user.id = uname
+            # flask_login.login_user(user)
+            return jsonify({"message": "Login successful"})
 
     # Authentication failed
     return jsonify({"message": "Invalid credentials"}), 401
-
-
 
 
 def send_signup_message_to_rabbitmq(user_data):
@@ -216,16 +252,16 @@ def send_signup_message_to_rabbitmq(user_data):
     channel = connection.channel()
 
     channel.queue_declare(queue='sign_up_queue', durable=True)
-    print(user_data)
+    # print(user_data)
     try:
         json_data = json.dumps(user_data)
     except Exception as e:
         print(e)
         
     
-    print("Type of user_data:", type(user_data))
-    print("Type of json_data:", type(json_data))
-    print("Serialized user_data:", json_data)
+    # print("Type of user_data:", type(user_data))
+    # print("Type of json_data:", type(json_data))
+    # print("Serialized user_data:", json_data)
     print("Sending signup message to RabbitMQ")
     # user_data = "helloworld"
     channel.basic_publish(exchange='',
@@ -259,21 +295,16 @@ def signup():
         preference = data.get("preference")
         contact = preference.get("contact")
         alerts = preference.get("alerts")
-    
-        # TODO: Use rabbitMQ instead of directly sending to the database
 
         userDocument = {
         "name": { "first": fname, "last": lname },
         "username": uname,
-        # "password": bcrypt.hashpw(pwd.encode('utf-8'), bcrypt.gensalt()),
         "password": pwd,
         "address": { "door": door, "street name": street, "apt": apt, "city": city, "state": state, "zip": int(zipcode) },
         "phone": int(phone),
         "email": email,
         "preference": { "contact": contact, "alerts": alerts }
         }
-        # usersTable = db.users
-        # usersTable.insert_one(userDocument)
 
         send_signup_message_to_rabbitmq(userDocument)
         return jsonify({"message": "Signup successful"})
@@ -285,7 +316,70 @@ def signup():
 
 
 
+@app.route('/logout')
+def logout():
+    # flask_login.logout_user()
+    return flask.redirect(flask.url_for('login'))
 
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    return flask.redirect(flask.url_for('login'))
+
+@app.route('/getUserCity', methods=['POST'])
+def getCity():
+    data = request.get_json()
+    uname = data.get('username')
+    usersTable = db.users
+    user_document = usersTable.find_one({"username": uname})
+    if user_document:
+        address = user_document.get('address')
+        city = address.get('city')
+        return jsonify({"city": city})
+    else:
+        return jsonify({"city": "Not Found"})
+
+def send_db_updations_to_rabbitmq(data):
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    channel = connection.channel()
+
+    channel.queue_declare(queue='updations_queue', durable=True)
+    #usersTable = db.users
+    #search = {'username': data.get('username')}
+    # usersTable.update_one(search, {"$set":{"name" : {"first": data.get("name").get("first"), "last": data.get("name").get("last")}}})
+
+    print("Sending updation message to RabbitMQ")
+
+    channel.basic_publish(exchange='',
+                          routing_key='updations_queue',
+                          body=json.dumps(data),
+                          properties=pika.BasicProperties(
+        delivery_mode=2,  # make message persistent
+    ))
+    print("Sent updation message to RabbitMQ")
+    connection.close()
+
+
+
+@app.route('/updateUserInfo', methods=['POST'])
+def userInfo():
+    if request.method == 'POST':
+        data = request.get_json()
+
+        send_db_updations_to_rabbitmq(data)
+        return jsonify({"message": "Update successful"})
+
+
+
+@app.route('/getUserInfo', methods=['POST'])
+def getUserInfo():
+    data = request.get_json()
+    uname = data.get('username')
+    usersTable = db.users
+    user_document = usersTable.find_one({"username": uname}, {"_id": 0, "password": 0})
+
+    print(user_document)
+    if user_document:
+        return jsonify(user_document)
 
 
 
