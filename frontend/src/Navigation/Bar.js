@@ -32,10 +32,12 @@ import NavDropdown from 'react-bootstrap/NavDropdown';
 import React from "react";
 
 function Bar() {
+
+  const isLoggedIn = !!sessionStorage.getItem('username');
   return (
     <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary bg-dark font-weight-bold font-weight: bold navbar-dark navbar-brand">
       <Container>
-        <Navbar.Brand href="/">Disaster Response</Navbar.Brand>
+        <Navbar.Brand href="/home">Disaster Response</Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="me-auto">
@@ -44,9 +46,16 @@ function Bar() {
             <Nav.Link href="/home">Home</Nav.Link>
             <Nav.Link className="ms-3" href="/alerts">Alerts</Nav.Link>
             <Nav.Link className="ms-3" href="/settings">Settings</Nav.Link>  
+            {isLoggedIn ? (
+              <Nav.Link className="ms-3" href="/logout">Logout</Nav.Link>
+            ) : (
+              <Nav.Link className="ms-3" href="/login">Login</Nav.Link>
+            )
+            }
+            
           </Nav>
         </Navbar.Collapse>
-      </Container>
+      </Container>  
     </Navbar>
   );
 }

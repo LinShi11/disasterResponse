@@ -1,18 +1,57 @@
 
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom';
 import './App.css';
 
 function WeatherUpdate(){
     const [data, setData] = useState({});
     const [city, setCity] = useState('');
     const dayOneHours = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"];
+    const navigate = useNavigate();
+    // useEffect(() => {
+    // fetch('/home')
+    //     .then(response => response.json())
+    //     .then(json => setData(json))
+    //     .catch(error => console.error(error));
+    // }, []);
 
     useEffect(() => {
-    fetch('/home')
-        .then(response => response.json())
-        .then(json => setData(json))
-        .catch(error => console.error(error));
-    }, []);
+        const user = sessionStorage.getItem('username');
+        if (!user) {
+          navigate('/login'); // Redirect to login if no user is found
+        }
+        else
+        {
+            const uname = {username: user};
+            console.log(uname);
+            fetch('/getUserCity', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(uname),
+            })
+            .then(response => response.json())
+            .then((json) => {
+                if (json.city !== "Not Found")
+                {
+                    console.log(json)
+                    console.log(json.city)
+                    setCity(json.city);
+                }
+            })
+            .then({weathercheck})
+        }
+      }, [navigate, city]);
+
+
+      fetch('/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
 
     const weathercheck = (e) => {
 

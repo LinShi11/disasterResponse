@@ -195,7 +195,6 @@ def home():
     return jsonify("Hello World")
 
 @app.route('/weatherbycity/<cityName>', methods=['GET'])
-@flask_login.login_required
 def getWeatherByCity(cityName):
     data = {}
     # Call weatherapi.com
@@ -239,9 +238,9 @@ def login():
         hashed_password = user_document.get('password')
 
         if bcrypt.checkpw(pwd.encode('utf-8'), hashed_password):
-            user = User()
-            user.id = uname
-            flask_login.login_user(user)
+            # user = User()
+            # user.id = uname
+            # flask_login.login_user(user)
             return jsonify({"message": "Login successful"})
 
     # Authentication failed
@@ -319,12 +318,68 @@ def signup():
 
 @app.route('/logout')
 def logout():
-    flask_login.logout_user()
+    # flask_login.logout_user()
     return flask.redirect(flask.url_for('login'))
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
     return flask.redirect(flask.url_for('login'))
+
+@app.route('/getUserCity', methods=['POST'])
+def getCity():
+    data = request.get_json()
+    uname = data.get('username')
+    usersTable = db.users
+    user_document = usersTable.find_one({"username": uname})
+    if user_document:
+        address = user_document.get('address')
+        city = address.get('city')
+        return jsonify({"city": city})
+    else:
+        return jsonify({"city": "Not Found"})
+
+def send_db_updations_to_rabbitmq(data):
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    channel = connection.channel()
+
+    channel.queue_declare(queue='updations_queue', durable=True)
+    #usersTable = db.users
+    #search = {'username': data.get('username')}
+    # usersTable.update_one(search, {"$set":{"name" : {"first": data.get("name").get("first"), "last": data.get("name").get("last")}}})
+
+    print("Sending updation message to RabbitMQ")
+
+    channel.basic_publish(exchange='',
+                          routing_key='updations_queue',
+                          body=json.dumps(data),
+                          properties=pika.BasicProperties(
+        delivery_mode=2,  # make message persistent
+    ))
+    print("Sent updation message to RabbitMQ")
+    connection.close()
+
+
+
+@app.route('/updateUserInfo', methods=['POST'])
+def userInfo():
+    if request.method == 'POST':
+        data = request.get_json()
+
+        send_db_updations_to_rabbitmq(data)
+        return jsonify({"message": "Update successful"})
+
+
+
+@app.route('/getUserInfo', methods=['POST'])
+def getUserInfo():
+    data = request.get_json()
+    uname = data.get('username')
+    usersTable = db.users
+    user_document = usersTable.find_one({"username": uname}, {"_id": 0, "password": 0})
+
+    print(user_document)
+    if user_document:
+        return jsonify(user_document)
 
 
 

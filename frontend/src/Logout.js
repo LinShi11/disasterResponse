@@ -7,6 +7,7 @@ function Logout() {
     useEffect(() => {
         fetch('/logout') // Hit the logout endpoint
             .then(() => {
+                sessionStorage.clear();
                 navigate('/login'); // Redirect to the login page after logout
             })
             .catch((error) => {

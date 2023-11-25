@@ -28,6 +28,8 @@ function Login() {
             .then((json) => {
               if (json.message === 'Login successful') {
                 // Successful login, redirect to weather update page
+                sessionStorage.setItem('username', username);
+                console.log(sessionStorage);
                 setResult(json);
                 navigate('/home');
               }
