@@ -215,13 +215,13 @@ def getWeatherByCity(cityName):
     return data
 
     geocode(cityName)
-    
 
-@app.route('/weatherAlert/<cityName>', methods=['GET'])
-def getStateAlert(cityName):
+
+@app.route('/weatherAlert/<state>', methods=['GET'])
+def getStateAlert(state):
     data = {}
     # TODO: change cityName to the proper state
-    data = weathergov(cityName)
+    data = weathergov(state)
 
     return data
 
@@ -257,8 +257,8 @@ def send_signup_message_to_rabbitmq(user_data):
         json_data = json.dumps(user_data)
     except Exception as e:
         print(e)
-        
-    
+
+
     # print("Type of user_data:", type(user_data))
     # print("Type of json_data:", type(json_data))
     # print("Serialized user_data:", json_data)
