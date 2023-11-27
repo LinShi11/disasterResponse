@@ -382,6 +382,17 @@ def getUserInfo():
         return jsonify(user_document)
 
 
+@app.route('/disasterCheckin', methods=['POST'])
+def disasterCheckin():
+    data = request.get_json()
+    uname = data.get('username')
+    checkin = data.get('message')
+    print(uname, checkin)
+
+    #Add to DB based on username and ---
+    return jsonify({"message": "Thanks for checking in. We'll make sure you receive help!"})
+
+
 
 # start flask app
 app.run(host="0.0.0.0", port=5000)

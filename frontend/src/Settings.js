@@ -69,7 +69,6 @@ function Settings() {
                       
                   })
                 .catch((error) => {
-                    console.log("Fuckkkkkk");
                     console.error('Error updating info', error);
                     setLoading(false);
                 });
