@@ -1,0 +1,46 @@
+/* Appropriate styles for the Disaster Check-In component */
+
+.disaster-checkin-container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+  }
+  
+  .disaster-checkin-container h1 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+  }
+  
+  .disaster-checkin-container p {
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: #666;
+  }
+  
+  .response-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .response-buttons button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  /* Style for showing the response */
+  .disaster-checkin-container p:last-child {
+    margin-top: 20px;
+    font-weight: bold;
+    color: #333;
+  }
+  

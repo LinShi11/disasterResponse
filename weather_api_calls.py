@@ -285,7 +285,7 @@ def signup():
         pwd = data.get("password")
         addr = data.get("address")
         door = addr.get("door")
-        street = addr.get("street name")
+        street = addr.get("street")
         apt = addr.get("apt")
         city = addr.get("city")
         state = addr.get("state")
@@ -305,7 +305,7 @@ def signup():
         "email": email,
         "preference": { "contact": contact, "alerts": alerts }
         }
-
+        print(userDocument)
         send_signup_message_to_rabbitmq(userDocument)
         return jsonify({"message": "Signup successful"})
     except:
@@ -380,6 +380,17 @@ def getUserInfo():
     print(user_document)
     if user_document:
         return jsonify(user_document)
+
+
+@app.route('/disasterCheckin', methods=['POST'])
+def disasterCheckin():
+    data = request.get_json()
+    uname = data.get('username')
+    checkin = data.get('message')
+    print(uname, checkin)
+
+    #Add to DB based on username and ---
+    return jsonify({"message": "Thanks for checking in. We'll make sure you receive help!"})
 
 
 

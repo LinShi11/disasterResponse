@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+
 function Settings() {
     const [loading, setLoading] = useState(true);
     const [name, setName] = useState({ first: '', last: '' });
@@ -68,7 +69,6 @@ function Settings() {
                       
                   })
                 .catch((error) => {
-                    console.log("Fuckkkkkk");
                     console.error('Error updating info', error);
                     setLoading(false);
                 });
@@ -129,39 +129,47 @@ function Settings() {
             <div className="centered-container-signup">
                 <form onSubmit={handleSubmit}>
                     <div class="input-group">
-                        <input type="text" readonly class="form-control m-bot" id="Fname" placeholder="First Name"
+                    {/* <label class="align-left"><b>Name</b></label> */}
+                        <input type="text" data-toggle="tooltip" data-placement="top" title="First Name" readonly class="form-control m-bot" id="Fname" placeholder="First Name"
                         value={name.first} />
-                        <input type="text" readonly class="form-control m-bot" id="Lname" placeholder="Last Name"
+                        <input type="text" data-toggle="tooltip" data-placement="top" title="Last Name" readonly class="form-control m-bot" id="Lname" placeholder="Last Name"
                         value={name.last} />
                     </div>
                     <div class="input-box">
-                        <input type="text" readonly class="form-control m-bot" id="Username" placeholder="Username"
+                    {/* <label class="align-left"><b>Username</b></label> */}
+                        <input type="text" data-toggle="tooltip" data-placement="top" title="Username" readonly class="form-control m-bot" id="Username" placeholder="Username"
                         value={username} />
-                        <input type="password" required class="form-control m-bot" id="inputPassword4" placeholder="Password"
+                        {/* <label class="align-left"><b>Password</b></label> */}
+                        <input type="password" data-toggle="tooltip" data-placement="top" title="Password" required class="form-control m-bot" id="inputPassword4" placeholder="Password"
                         value={password} onChange={(e) => setPassword(e.target.value)} />
                     </div>
                     <div class="input-group">
-                        <input type="text" required class="form-control" id="inputAddress" placeholder="Door number"
+                    {/* <label class="align-left"><b>Address: Door & Street</b></label> */}
+                        <input type="text" data-toggle="tooltip" data-placement="top" title="Door Number" required class="form-control" id="inputAddress" placeholder="Door number"
                         value={address.door} onChange={(e) => setAddress({ ...address, door: e.target.value })} />
-                        <input type="text" required class="form-control" id="inputAddress" placeholder="Street Name"
+                        <input type="text" data-toggle="tooltip" data-placement="top" title="Street Name" required class="form-control" id="inputAddress" placeholder="Street Name"
                         value={address.street} onChange={(e) => setAddress({ ...address, street: e.target.value })} />
                     </div>
                     <div class="input-group margin-top">
-                        <input type="text" class="form-control" id="inputAddress" placeholder="Apt/unit"
+                    {/* <label class="align-left"><b>Address: Apt & City</b></label> */}
+                        <input type="text" data-toggle="tooltip" data-placement="top" title="Apt / Unit" class="form-control" id="inputAddress" placeholder="Apt/unit"
                         value={address.apt} onChange={(e) => setAddress({ ...address, apt: e.target.value })} />
-                        <input type="text" required class="form-control" id="inputCity" placeholder="City"
+                        <input type="text" data-toggle="tooltip" data-placement="top" title="City" required class="form-control" id="inputCity" placeholder="City"
                         value={address.city} onChange={(e) => setAddress({ ...address, city: e.target.value })} />
                     </div>
                     <div class="input-box input-group margin-top">
-                        <input type="text" required class="form-control" id="inputAddress" placeholder="State"
+                    {/* <label class="align-left"><b>State, zip</b></label> */}
+                        <input type="text" data-toggle="tooltip" data-placement="top" title="State" required class="form-control" id="inputAddress" placeholder="State"
                         value={address.state} onChange={(e) => setAddress({ ...address, state: e.target.value })} />
-                        <input type="text" required class="form-control" id="inputZip" placeholder="Zip"
+                        <input type="text" required data-toggle="tooltip" data-placement="top" title="Zip" class="form-control" id="inputZip" placeholder="Zip"
                         value={address.zip} onChange={(e) => setAddress({ ...address, zip: e.target.value })} />
                     </div>
                     <div class="input-box">
-                        <input type="number" required class="form-control m-bot" id="phone" placeholder="Phone Number"
+                    {/* <label class="align-left"><b>Phone</b></label> */}
+                        <input type="number" required data-toggle="tooltip" data-placement="top" title="Phone number" class="form-control m-bot" id="phone" placeholder="Phone Number"
                         value={phone} onChange={(e) => setPhone(e.target.value)} />
-                        <input type="email" required class="form-control m-bot" id="email" placeholder="Email Address"
+                        {/* <label class="align-left"><b>Email</b></label> */}
+                        <input type="email" required data-toggle="tooltip" data-placement="top" title="Email address" class="form-control m-bot" id="email" placeholder="Email Address"
                         value={email} onChange={(e) => setEmail(e.target.value)} />
 
                         <label class="form-check-label">Consent for authorities to contact you </label>

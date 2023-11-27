@@ -90,11 +90,12 @@ function Signup() {
                     value={address.zip} onChange={(e) => setAddress({ ...address, zip: e.target.value })} />
                 </div>
                 <div class="input-box">
-                    <input type="number" required class="form-control m-bot" id="phone" placeholder="Phone Number"
+                    <input type="tel" required class="form-control m-bot" id="phone" placeholder="Phone Number"
                     value={phone} onChange={(e) => setPhone(e.target.value)} />
                     <input type="email" required class="form-control m-bot" id="email" placeholder="Email Address"
                     value={email} onChange={(e) => setEmail(e.target.value)} />
-                    <select class="custom-select my-1 mr-sm-2 m-bot" required id="inlineFormCustomSelectPref"
+
+                    {/* <select class="custom-select my-1 mr-sm-2 m-bot" required id="inlineFormCustomSelectPref"
                     value={contact} onChange={(e) => setContact(e.target.value)}>
                         <option selected>Consent for authorities to contact you</option>
                         <option value="1">Yes</option>
@@ -105,7 +106,33 @@ function Signup() {
                         <option selected>Receive weather alerts</option>
                         <option value="1">Yes</option>
                         <option value="2">No</option>
-                    </select>
+                    </select> */}
+
+                    <label class="form-check-label">Consent for authorities to contact you </label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions0" id="inlineRadio1" 
+                            value="0" onChange={(e) => setContact(e.target.value)} />
+                            <label class="form-check-label" value="0" for="inlineRadio0">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions1" id="inlineRadio2" 
+                            value="1" onChange={(e) => setContact(e.target.value)} />
+                            <label class="form-check-label" value="1" for="inlineRadio1">No</label>
+                        </div>
+
+                        <label class="form-check-label">Receive weather alerts </label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions2" id="inlineRadio3"
+                            value="0" onChange={(e) => setAlerts(e.target.value)} />
+                            <label class="form-check-label" value="0" for="inlineRadio2">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions3" id="inlineRadio4" 
+                            value="1" onChange={(e) => setAlerts(e.target.value)} />
+                            <label class="form-check-label" value="1" for="inlineRadio3">No</label>
+                        </div>
+
+
                 </div>
                 <div class="input-box">
                     <button type="submit" class="btn btn-primary">Sign up</button>
