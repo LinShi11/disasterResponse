@@ -285,7 +285,7 @@ def signup():
         pwd = data.get("password")
         addr = data.get("address")
         door = addr.get("door")
-        street = addr.get("street name")
+        street = addr.get("street")
         apt = addr.get("apt")
         city = addr.get("city")
         state = addr.get("state")
@@ -305,7 +305,7 @@ def signup():
         "email": email,
         "preference": { "contact": contact, "alerts": alerts }
         }
-
+        print(userDocument)
         send_signup_message_to_rabbitmq(userDocument)
         return jsonify({"message": "Signup successful"})
     except:

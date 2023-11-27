@@ -33,7 +33,7 @@ import React from "react";
 
 function Bar() {
 
-  const isLoggedIn = !!sessionStorage.getItem('username');
+  // const isLoggedIn = !!sessionStorage.getItem('username');
   return (
     <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary bg-dark font-weight-bold font-weight: bold navbar-dark navbar-brand">
       <Container>
@@ -46,12 +46,12 @@ function Bar() {
             <Nav.Link href="/home">Home</Nav.Link>
             <Nav.Link className="ms-3" href="/alerts">Alerts</Nav.Link>
             <Nav.Link className="ms-3" href="/settings">Settings</Nav.Link>  
-            {isLoggedIn ? (
+            {/* {isLoggedIn ? (
               <Nav.Link className="ms-3" href="/logout">Logout</Nav.Link>
             ) : (
               <Nav.Link className="ms-3" href="/login">Login</Nav.Link>
             )
-            }
+            } */}
             
           </Nav>
         </Navbar.Collapse>

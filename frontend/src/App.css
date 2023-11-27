@@ -145,3 +145,8 @@
   margin-bottom: 10px;
   box-sizing: border-box; /* Includes padding and border in the width calculation */
 }
+
+.align-left {
+  text-align: left;
+
+}
