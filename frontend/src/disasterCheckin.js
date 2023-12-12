@@ -6,24 +6,18 @@ function DisasterCheckIn() {
   const [response, setResponse] = useState('');
   const { uname } = useParams();
   const [returnval, setReturnval] = useState('');
-  const [sendjson, setSendJson] = useState({});
 
   const handleResponse = (status) => {
     setResponse(status);
-    if (response === "I am fine")
-    {
-        setSendJson({"message": "0", "username": uname});
-    }
-    else
-    {
-        setSendJson({"message": "1", "username": uname});
-    }
+    console.log("Status: ", status)
+    const updatedJson = { "username": uname, "message": status === "I am fine" ? "0" : "1" };
+    
     fetch('/disasterCheckin', {
         method: 'POST',
         headers: {
         'Content-Type': 'application/json',
         },
-        body: JSON.stringify(sendjson),
+        body: JSON.stringify(updatedJson),
     })
     .then((response) => response.json())
     .then((json) => {

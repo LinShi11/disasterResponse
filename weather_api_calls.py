@@ -1,7 +1,7 @@
 from flask import Flask, request, Response, jsonify
 import jsonpickle
 import requests
-
+import random
 import pika
 import sys
 import json
@@ -19,7 +19,7 @@ db = client.disasterResponse
 def weatherapi_current(city, data):
     ## api key
     ## current weather info
-    api_key = 'REDACTED'
+    api_key = 'key'
     city_modified = city.replace("%20", " ")
     air_quality = "yes"
     url = f'http://api.weatherapi.com/v1/current.json?key={api_key}&q={city_modified}&aqi={air_quality}'
@@ -47,7 +47,7 @@ def weatherapi_current(city, data):
 
 def weatherapi_forecast(city, data):
     num_days = 2
-    api_key = "REDACTED"
+    api_key = "key"
     air_quality = "yes"
     alert = "yes"
     city_modified = city.replace("%20", " ")
@@ -258,10 +258,6 @@ def send_signup_message_to_rabbitmq(user_data):
     except Exception as e:
         print(e)
         
-    
-    # print("Type of user_data:", type(user_data))
-    # print("Type of json_data:", type(json_data))
-    # print("Serialized user_data:", json_data)
     print("Sending signup message to RabbitMQ")
     # user_data = "helloworld"
     channel.basic_publish(exchange='',
@@ -382,15 +378,93 @@ def getUserInfo():
         return jsonify(user_document)
 
 
+def send_alert_insertions_to_rabbitmq(data):
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    channel = connection.channel()
+
+    channel.queue_declare(queue='alert_insertions', durable=True)
+    
+    print("Sending insertion message to RabbitMQ")
+
+    channel.basic_publish(exchange='',
+                          routing_key='alert_insertions',
+                          body=json.dumps(data),
+                          properties=pika.BasicProperties(
+        delivery_mode=2,  # make message persistent
+    ))
+    print("Sent updation message to RabbitMQ")
+    connection.close()
+
+
+@app.route('/sendAlert', methods=['POST'])
+def sendAlert():
+    data = request.get_json()  # get city, auth_username
+    auth_uname = data.get('username')
+    city = data.get('city')
+    random_alert_id = random.randint(10000000, 99999999) # Create a random alert id 
+    authoritiesTable = db.users
+    authority_document = authoritiesTable.find_one({"username": auth_uname}, {"_id": 1})
+    authid = authority_document['_id']
+
+    # update the authorities table with this latest alert id
+    authoritiesTable.update_one({'username': auth_uname}, {'$set': {'latestAlert': random_alert_id}})
+
+    usersTable = db.users
+    users_matching_city_and_preference = usersTable.find({"address.city": city, "preference.contact": True}, {"_id": 1})
+
+    for user in users_matching_city_and_preference:
+        send_data = {"userid": user['_id'], "alertid": random_alert_id, "authid": authid, "helpNeeded": '1'}
+        send_alert_insertions_to_rabbitmq(send_data)
+
+    
+
+def send_checkin_updations_to_rabbitmq(data):
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    channel = connection.channel()
+
+    channel.queue_declare(queue='checkin_updations', durable=True)
+    
+    print("Sending checkin updation message to RabbitMQ")
+
+    channel.basic_publish(exchange='',
+                          routing_key='checkin_updations',
+                          body=json.dumps(data),
+                          properties=pika.BasicProperties(
+        delivery_mode=2,  # make message persistent
+    ))
+    print("Sent checkin updation message to RabbitMQ")
+    connection.close()
+
+
 @app.route('/disasterCheckin', methods=['POST'])
 def disasterCheckin():
     data = request.get_json()
     uname = data.get('username')
     checkin = data.get('message')
-    print(uname, checkin)
 
-    #Add to DB based on username and ---
-    return jsonify({"message": "Thanks for checking in. We'll make sure you receive help!"})
+    #Add to DB
+
+    if checkin == "1":
+        return jsonify({"message": "Thanks for checking in. We'll make sure you receive help!"})
+    else:
+        send_checkin_updations_to_rabbitmq(data)
+        return jsonify({"message": "Thanks for checking in. Stay safe out there!"})
+
+
+@app.route('/usersRequiringAssistance', methods=['POST'])
+def usersRequiringAssistance():
+    data = request.get_json()
+    auth_uname = data.get('username')
+    authoritiesTable = db.users
+    authority_document = authoritiesTable.find_one({"username": auth_uname}, {"_id": 1, 'latestAlert': 1})
+    authid = authority_document['_id']
+    latestAlert = authority_document['latestAlert']
+
+    drTable = db.disasterCheckin
+    output_users = drTable.find({'alertid': latestAlert, 'helpNeeded': "1"}, {'userid': 1})
+    return jsonify(output_users)
+
+
 
 
 
