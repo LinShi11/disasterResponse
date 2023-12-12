@@ -1,3 +1,5 @@
+set up: set NODE_OPTIONS=--openssl-legacy-provider
+
 #### b
 https://openweathermap.org/
 

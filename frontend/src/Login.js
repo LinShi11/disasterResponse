@@ -7,6 +7,7 @@ function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [result, setResult] = useState({});
+    const [userType, setUserType] = useState('regular');
     const navigate = useNavigate();
 
     const handleSubmit = (e) => {
@@ -16,6 +17,7 @@ function Login() {
         const data = {
             username: username,
             password: password,
+            userType: userType,
         };
         fetch('/login', {
             method: 'POST',
@@ -29,6 +31,7 @@ function Login() {
               if (json.message === 'Login successful') {
                 // Successful login, redirect to weather update page
                 sessionStorage.setItem('username', username);
+                sessionStorage.setItem('userType', userType);
                 console.log(sessionStorage);
                 setResult(json);
                 navigate('/home');
@@ -53,6 +56,13 @@ function Login() {
 
                   <input type="password" class="form-control m-bot" id="password" placeholder="Password"
                    value={password} onChange={(e) => setPassword(e.target.value)} />
+
+                  <select class="custom-select my-1 mr-sm-2 m-bot" required
+                            value={userType} onChange={(e) => setUserType(e.target.value)}>
+                            <option value="regular">Normal User</option>
+                            <option value="authority">Authority</option>
+                            <option value="rescue team">Rescue Team</option>
+                  </select>
                 </div>
                 <button type="submit" class="btn btn-primary input-box-login">Login</button>
                 <p class="m-top">Don't have an account?</p>

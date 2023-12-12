@@ -18,6 +18,7 @@ function Signup() {
   const [email, setEmail] = useState('');
   const [contact, setContact] = useState('');
   const [alerts, setAlerts] = useState('');
+  const [userType, setUserType] = useState('regular');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
@@ -131,12 +132,43 @@ function Signup() {
                             value="1" onChange={(e) => setAlerts(e.target.value)} />
                             <label class="form-check-label" value="1" for="inlineRadio3">No</label>
                         </div>
-
+                        <div className="input-box">
+            <label className="form-check-label">User Type</label>
+            <div className="form-check form-check-inline">
+              <input
+                className="form-check-input"
+                type="radio"
+                name="userType"
+                id="regularUser"
+                value="regular"
+                checked={userType === 'regular'}
+                onChange={() => setUserType('regular')}
+              />
+              <label className="form-check-label" htmlFor="regularUser">
+                Regular User
+              </label>
+            </div>
+            <div className="form-check form-check-inline">
+              <input
+                className="form-check-input"
+                type="radio"
+                name="userType"
+                id="rescueTeam"
+                value="rescue"
+                checked={userType === 'rescue'}
+                onChange={() => setUserType('rescue')}
+              />
+              <label className="form-check-label" htmlFor="rescueTeam">
+                Rescue Team
+              </label>
+            </div>
+          </div>
 
                 </div>
                 <div class="input-box">
                     <button type="submit" class="btn btn-primary">Sign up</button>
                 </div>
+                
 
             </form>
         

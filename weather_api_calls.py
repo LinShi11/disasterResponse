@@ -15,6 +15,12 @@ client = MongoClient('mongodb+srv://<username>:<password>@cluster0.tmwwaer.mongo
 
 db = client.disasterResponse
 
+usersTable = {
+    'regular': db.users, 
+    'authority': db.authorities, 
+    'rescue team': db.rescue
+}
+
 
 def weatherapi_current(city, data):
     ## api key
@@ -173,7 +179,10 @@ class User(flask_login.UserMixin):
 
 @login_manager.user_loader
 def user_loader(username):
-    if username not in users_uname:
+    global usersTable
+    user_type = session.get('userType', 'regular')
+    users_table = usersTable.get(user_type, db.users)
+    if username not in users_table:
         return
 
     user = User()
@@ -183,6 +192,7 @@ def user_loader(username):
 
 @login_manager.request_loader
 def request_loader(request):
+    global usersTable
     username = request.form.get('username')
     if username not in users_uname:
         return
@@ -216,7 +226,6 @@ def getWeatherByCity(cityName):
     #return jsonify(data, status=200, mimetype='application/json')
     return data
 
-    geocode(cityName)
 
 
 @app.route('/weatherAlert/<state>', methods=['GET'])
@@ -230,11 +239,17 @@ def getStateAlert(state):
 
 @app.route('/login', methods=['POST'])
 def login():
+    global usersTable
+
     data = request.get_json()
     uname = data.get('username')
     pwd = data.get('password')
-
-    usersTable = db.users
+    user_type = data.get("userType")
+    
+    if(user_type == "authority"):
+        usersTable = db.authorities
+    elif (user_type == "rescue team"):
+        usersTable = db.rescue
     user_document = usersTable.find_one({"username": uname})
     if user_document:
         hashed_password = user_document.get('password')
@@ -331,11 +346,18 @@ def unauthorized_handler():
 def getCity():
     data = request.get_json()
     uname = data.get('username')
-    usersTable = db.users
-    user_document = usersTable.find_one({"username": uname})
+    user_type = data.get('userType')
+    
+    user_document = usersTable.find_one({"username": uname}) 
+    city = "Not Found"
     if user_document:
-        address = user_document.get('address')
-        city = address.get('city')
+        if(user_type == "authority"):
+            city = user_document.get('city')
+        elif(user_type == "rescue team"):
+            city = user_document.get('city')
+        elif(user_type == "regular"):
+            address = user_document.get('address')
+            city = address.get('city')
         return jsonify({"city": city})
     else:
         return jsonify({"city": "Not Found"})
@@ -376,7 +398,6 @@ def userInfo():
 def getUserInfo():
     data = request.get_json()
     uname = data.get('username')
-    usersTable = db.users
     user_document = usersTable.find_one({"username": uname}, {"_id": 0, "password": 0})
 
     print(user_document)
@@ -394,7 +415,20 @@ def disasterCheckin():
     #Add to DB based on username and ---
     return jsonify({"message": "Thanks for checking in. We'll make sure you receive help!"})
 
+@app.route('/settingsAuthorities', methods=['POST'])
+def settingsAuthorities():
+    try:
+        data = request.get_json()
+        uname = data.get('username')
+        user_document = usersTable.find_one({"username": uname}, {"_id": 0, "password": 0})
 
+        if user_document:
+            return jsonify(user_document)
+        else:
+            return jsonify({"error": "User not found"}), 404
+    except Exception as e:
+        print(f"Error in settingsAuthorities: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
 
 # start flask app
 app.run(host="0.0.0.0", port=5000)
