@@ -15,11 +15,17 @@ client = MongoClient('mongodb+srv://<username>:<password>@cluster0.tmwwaer.mongo
 
 db = client.disasterResponse
 
+usersTable = {
+    'regular': db.users, 
+    'authority': db.authorities, 
+    'rescue team': db.rescue
+}
+
 
 def weatherapi_current(city, data):
     ## api key
     ## current weather info
-    api_key = 'key'
+    api_key = 'REDACTED'
     city_modified = city.replace("%20", " ")
     air_quality = "yes"
     url = f'http://api.weatherapi.com/v1/current.json?key={api_key}&q={city_modified}&aqi={air_quality}'
@@ -47,7 +53,7 @@ def weatherapi_current(city, data):
 
 def weatherapi_forecast(city, data):
     num_days = 2
-    api_key = "key"
+    api_key = "REDACTED"
     air_quality = "yes"
     alert = "yes"
     city_modified = city.replace("%20", " ")
@@ -59,6 +65,7 @@ def weatherapi_forecast(city, data):
         weather_info = response.json()
         ## see weatherapi_response.json for each information
         ## see https://www.weatherapi.com/docs/ and look for weather alerts for alert examples
+        
 
         for i in range(num_days):
             day = str(i)
@@ -73,7 +80,7 @@ def weatherapi_forecast(city, data):
             data[day]["rain_chance"] = weather_info["forecast"]["forecastday"][i]["day"]["daily_chance_of_rain"]
             data[day]["snow_chance"] = weather_info["forecast"]["forecastday"][i]["day"]["daily_chance_of_snow"]
             data[day]["uv"] = weather_info["forecast"]["forecastday"][i]["day"]["uv"]
-            data[day]["air_quality_today"] = weather_info["forecast"]["forecastday"][i]["day"]["air_quality"]["us-epa-index"]
+            data[day]["air_quality_today"] = weather_info['forecast']['forecastday'][i]['day']['air_quality']["us-epa-index"]
             data[day]["condition"] = weather_info["forecast"]["forecastday"][i]["day"]["condition"]["text"]
             data[day]["icon"] = weather_info["forecast"]["forecastday"][i]["day"]["condition"]["icon"]
             data[day]["sunrise"] = weather_info["forecast"]["forecastday"][i]["astro"]["sunrise"]
@@ -101,6 +108,7 @@ def weatherapi_forecast(city, data):
                 alert[key] = value
             all_alerts.append(alert)
         data["alerts"] = all_alerts
+        print(data)
     return data
 
 def weathergov(state):
@@ -125,7 +133,7 @@ def weathergov(state):
 def geocode(city):
     # Finding: not that sensitive. Will give the city location at the very least
     api_key = "key"
-    address = "1242 Le ave. bilLings, Mt 59102"
+    address = ""
     url = f'https://api.radar.io/v1/geocode/forward'
     query_params = {"query": f"{address}"}
     headers = {"Authorization": f"{api_key}"}
@@ -171,7 +179,10 @@ class User(flask_login.UserMixin):
 
 @login_manager.user_loader
 def user_loader(username):
-    if username not in users_uname:
+    global usersTable
+    user_type = session.get('userType', 'regular')
+    users_table = usersTable.get(user_type, db.users)
+    if username not in users_table:
         return
 
     user = User()
@@ -181,6 +192,7 @@ def user_loader(username):
 
 @login_manager.request_loader
 def request_loader(request):
+    global usersTable
     username = request.form.get('username')
     if username not in users_uname:
         return
@@ -214,25 +226,30 @@ def getWeatherByCity(cityName):
     #return jsonify(data, status=200, mimetype='application/json')
     return data
 
-    geocode(cityName)
-    
 
-@app.route('/weatherAlert/<cityName>', methods=['GET'])
-def getStateAlert(cityName):
+
+@app.route('/weatherAlert/<state>', methods=['GET'])
+def getStateAlert(state):
     data = {}
     # TODO: change cityName to the proper state
-    data = weathergov(cityName)
+    data = weathergov(state)
 
     return data
 
 
 @app.route('/login', methods=['POST'])
 def login():
+    global usersTable
+
     data = request.get_json()
     uname = data.get('username')
     pwd = data.get('password')
-
-    usersTable = db.users
+    user_type = data.get("userType")
+    
+    if(user_type == "authority"):
+        usersTable = db.authorities
+    elif (user_type == "rescue team"):
+        usersTable = db.rescue
     user_document = usersTable.find_one({"username": uname})
     if user_document:
         hashed_password = user_document.get('password')
@@ -258,6 +275,10 @@ def send_signup_message_to_rabbitmq(user_data):
     except Exception as e:
         print(e)
         
+    
+    # print("Type of user_data:", type(user_data))
+    # print("Type of json_data:", type(json_data))
+    # print("Serialized user_data:", json_data)
     print("Sending signup message to RabbitMQ")
     # user_data = "helloworld"
     channel.basic_publish(exchange='',
@@ -325,11 +346,18 @@ def unauthorized_handler():
 def getCity():
     data = request.get_json()
     uname = data.get('username')
-    usersTable = db.users
-    user_document = usersTable.find_one({"username": uname})
+    user_type = data.get('userType')
+    
+    user_document = usersTable.find_one({"username": uname}) 
+    city = "Not Found"
     if user_document:
-        address = user_document.get('address')
-        city = address.get('city')
+        if(user_type == "authority"):
+            city = user_document.get('city')
+        elif(user_type == "rescue team"):
+            city = user_document.get('city')
+        elif(user_type == "regular"):
+            address = user_document.get('address')
+            city = address.get('city')
         return jsonify({"city": city})
     else:
         return jsonify({"city": "Not Found"})
@@ -370,7 +398,6 @@ def userInfo():
 def getUserInfo():
     data = request.get_json()
     uname = data.get('username')
-    usersTable = db.users
     user_document = usersTable.find_one({"username": uname}, {"_id": 0, "password": 0})
 
     print(user_document)
@@ -444,27 +471,8 @@ def disasterCheckin():
 
     #Add to DB
 
-    if checkin == "1":
-        return jsonify({"message": "Thanks for checking in. We'll make sure you receive help!"})
-    else:
-        send_checkin_updations_to_rabbitmq(data)
-        return jsonify({"message": "Thanks for checking in. Stay safe out there!"})
-
-
-@app.route('/usersRequiringAssistance', methods=['POST'])
-def usersRequiringAssistance():
-    data = request.get_json()
-    auth_uname = data.get('username')
-    authoritiesTable = db.users
-    authority_document = authoritiesTable.find_one({"username": auth_uname}, {"_id": 1, 'latestAlert': 1})
-    authid = authority_document['_id']
-    latestAlert = authority_document['latestAlert']
-
-    drTable = db.disasterCheckin
-    output_users = drTable.find({'alertid': latestAlert, 'helpNeeded': "1"}, {'userid': 1})
-    return jsonify(output_users)
-
-
+    #Add to DB based on username and ---
+    return jsonify({"message": "Thanks for checking in. We'll make sure you receive help!"})
 
 
 

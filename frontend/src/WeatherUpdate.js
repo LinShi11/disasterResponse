@@ -6,6 +6,7 @@ import './App.css';
 function WeatherUpdate(){
     const [data, setData] = useState({});
     const [city, setCity] = useState('');
+    const userType = sessionStorage.getItem('userType');
     const dayOneHours = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"];
     const navigate = useNavigate();
     // useEffect(() => {
@@ -22,7 +23,10 @@ function WeatherUpdate(){
         }
         else
         {
-            const uname = {username: user};
+            const uname = {
+                username: user, 
+                userType: userType,
+            };
             console.log(uname);
             fetch('/getUserCity', {
                 method: 'POST',
@@ -42,7 +46,7 @@ function WeatherUpdate(){
             })
             .then({weathercheck})
         }
-      }, [navigate, city]);
+      }, [navigate]);
 
 
       fetch('/login', {
@@ -81,6 +85,7 @@ function WeatherUpdate(){
                             placeholder="Enter city name"
                             onChange={(e) => setCity(e.target.value)}
                             aria-label="Search"
+                            onFocus={() => setCity('')} 
                         />
                         <button className="btn btn-outline-success" type="submit">
                             Search
