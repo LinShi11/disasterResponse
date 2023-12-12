@@ -19,7 +19,7 @@ db = client.disasterResponse
 def weatherapi_current(city, data):
     ## api key
     ## current weather info
-    api_key = 'REDACTED'
+    api_key = 'key'
     city_modified = city.replace("%20", " ")
     air_quality = "yes"
     url = f'http://api.weatherapi.com/v1/current.json?key={api_key}&q={city_modified}&aqi={air_quality}'
@@ -47,7 +47,7 @@ def weatherapi_current(city, data):
 
 def weatherapi_forecast(city, data):
     num_days = 2
-    api_key = "REDACTED"
+    api_key = "key"
     air_quality = "yes"
     alert = "yes"
     city_modified = city.replace("%20", " ")
@@ -59,6 +59,7 @@ def weatherapi_forecast(city, data):
         weather_info = response.json()
         ## see weatherapi_response.json for each information
         ## see https://www.weatherapi.com/docs/ and look for weather alerts for alert examples
+        
 
         for i in range(num_days):
             day = str(i)
@@ -73,7 +74,7 @@ def weatherapi_forecast(city, data):
             data[day]["rain_chance"] = weather_info["forecast"]["forecastday"][i]["day"]["daily_chance_of_rain"]
             data[day]["snow_chance"] = weather_info["forecast"]["forecastday"][i]["day"]["daily_chance_of_snow"]
             data[day]["uv"] = weather_info["forecast"]["forecastday"][i]["day"]["uv"]
-            data[day]["air_quality_today"] = weather_info["forecast"]["forecastday"][i]["day"]["air_quality"]["us-epa-index"]
+            data[day]["air_quality_today"] = weather_info['forecast']['forecastday'][i]['day']['air_quality']["us-epa-index"]
             data[day]["condition"] = weather_info["forecast"]["forecastday"][i]["day"]["condition"]["text"]
             data[day]["icon"] = weather_info["forecast"]["forecastday"][i]["day"]["condition"]["icon"]
             data[day]["sunrise"] = weather_info["forecast"]["forecastday"][i]["astro"]["sunrise"]
@@ -101,6 +102,7 @@ def weatherapi_forecast(city, data):
                 alert[key] = value
             all_alerts.append(alert)
         data["alerts"] = all_alerts
+        print(data)
     return data
 
 def weathergov(state):
@@ -125,7 +127,7 @@ def weathergov(state):
 def geocode(city):
     # Finding: not that sensitive. Will give the city location at the very least
     api_key = "key"
-    address = "1242 Le ave. bilLings, Mt 59102"
+    address = ""
     url = f'https://api.radar.io/v1/geocode/forward'
     query_params = {"query": f"{address}"}
     headers = {"Authorization": f"{api_key}"}

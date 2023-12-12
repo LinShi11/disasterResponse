@@ -42,7 +42,7 @@ function WeatherUpdate(){
             })
             .then({weathercheck})
         }
-      }, [navigate, city]);
+      }, [navigate]);
 
 
       fetch('/login', {
@@ -81,6 +81,7 @@ function WeatherUpdate(){
                             placeholder="Enter city name"
                             onChange={(e) => setCity(e.target.value)}
                             aria-label="Search"
+                            onFocus={() => setCity('')} 
                         />
                         <button className="btn btn-outline-success" type="submit">
                             Search
