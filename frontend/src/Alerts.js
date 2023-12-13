@@ -43,12 +43,7 @@ function Alerts() {
         e.preventDefault();
         setCity(city);
 
-        fetch(`http://localhost:5000/weatherbycity/${city}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
+        fetch(`http://localhost:5000/weatherbycity/${city}`)
         .then(response => response.json())
         .then(json => {
             const extractedAlerts = json.alerts || [];
@@ -109,7 +104,7 @@ function Alerts() {
                 </div>
             </div>
 
-            <div className="d-flex justify-content-center">
+            {/* <div className="d-flex justify-content-center">
                 <form className="d-flex" onSubmit={weathercheck}>
                     <div className="input-group">
                         <input
@@ -128,7 +123,7 @@ function Alerts() {
                         </button>
                     </div>
                 </form>
-            </div>
+            </div> */}
 
 
         </div>

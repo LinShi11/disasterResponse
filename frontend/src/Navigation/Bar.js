@@ -28,6 +28,7 @@ function Bar() {
               <>
                 <Nav.Link className="ms-3" href="/alerts">Alerts</Nav.Link>
                 <Nav.Link className="ms-3" href="/sendAlert">Send Alerts</Nav.Link>
+                <Nav.Link className="ms-3" href="/sendTasks">Send Tasks</Nav.Link>
               </>
             )}
             {userType === 'regular' && (
@@ -36,7 +37,11 @@ function Bar() {
                 <Nav.Link className="ms-3" href="/settings">Settings</Nav.Link>
               </>
             )} 
-            
+            {userType === 'rescue team' && (
+              <>
+                <Nav.Link className="ms-3" href="/alerts">Alerts</Nav.Link>
+              </>
+            )} 
           </Nav>
         </Navbar.Collapse>
       </Container>  

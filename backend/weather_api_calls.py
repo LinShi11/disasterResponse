@@ -318,9 +318,6 @@ def send_db_updations_to_rabbitmq(data):
     channel = connection.channel()
 
     channel.queue_declare(queue='updations_queue', durable=True)
-    #usersTable = db.users
-    #search = {'username': data.get('username')}
-    # usersTable.update_one(search, {"$set":{"name" : {"first": data.get("name").get("first"), "last": data.get("name").get("last")}}})
 
     print("Sending updation message to RabbitMQ")
 
@@ -421,7 +418,6 @@ def disasterCheckin():
     uname = data.get('username')
     checkin = data.get('message')
     alertid = data.get("alertid")
-    print(checkin)
 
     disasterTable = db.disasterCheckin
     
@@ -432,6 +428,55 @@ def disasterCheckin():
     else:
     #Add to DB based on username and ---
         return jsonify({"message": "Thanks for checking in. We'll make sure you receive help!"})
+
+
+def send_task_insertions_to_rabbitmq(data):
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-container', 5672))
+    channel = connection.channel()
+
+    channel.queue_declare(queue='task_insertions', durable=True)
+    
+    print("Sending insertion message to RabbitMQ")
+
+    channel.basic_publish(exchange='',
+                          routing_key='task_insertions',
+                          body=json.dumps(data),
+                          properties=pika.BasicProperties(
+        delivery_mode=2,  # make message persistent
+    ))
+    print("Sent updation message to RabbitMQ")
+    connection.close()
+
+@app.route('/sendTask', methods=['POST'])
+def sendTask():
+    data = request.get_json()  # get city, auth_username
+    auth_uname = data.get('username')
+    message = data.get("message")
+    # city = data.get('city')
+    random_task_id = random.randint(10000000, 99999999) # Create a random alert id 
+    print(random_task_id)
+    rescueTeam = db.rescue
+    
+    # update the authorities table with this latest alert id
+    rescueTeam.update_one({'username': auth_uname}, {'$set': {'task': random_task_id, "availability": false, "message": message}})
+    send_data = {'username': auth_uname, 'task': random_task_id, "message": message}
+    send_alert_insertions_to_rabbitmq(send_data)
+    return jsonify({"message": "Task sent"})
+
+@app.route('/taskCheckin', methods=['POST'])
+def taskCheckin():
+    data = request.get_json()
+    uname = data.get('username')
+    # checkin = data.get('message')
+    taskId = data.get("task")
+    print(checkin)
+
+    rescueTeamTable = db.rescue
+    
+    #Add to DB
+    
+    rescueTeamTable.update_one({"username": uname}, {'$set': {'availability': true, "task": "0", "message": ""}})
+    return jsonify({"message": "Thank you for letting us know. We will reach out with another task"})
 
 
 

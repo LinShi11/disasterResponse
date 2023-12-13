@@ -9,9 +9,11 @@ import Signup from './Signup';
 import Settings from './Settings';
 import Alerts from './Alerts';
 import SendAlert from './SendAlert';
+import SendTasks from './SendTasks.js';
 import "bootstrap/dist/css/bootstrap.min.css";
 import Bar from "./Navigation/Bar.js";
 import DisasterCheckIn from './disasterCheckin.js';
+import TaskCheckIn from './taskCheckin.js';
 
 function App() {
   return (
@@ -28,6 +30,8 @@ function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/alerts" element={<Alerts />} />
           <Route path="/sendAlert" element={<SendAlert />} />
+          <Route path="/sendTasks" element={<SendTasks />} />
+          <Route path="/taskCheckin/:uname/:task" element={<TaskCheckIn />} />
           <Route path="/disasterCheckin/:uname/:alertid" element={<DisasterCheckIn />} />
 
         </Routes>
