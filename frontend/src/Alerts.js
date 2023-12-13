@@ -43,12 +43,7 @@ function Alerts() {
         e.preventDefault();
         setCity(city);
 
-        fetch(`http://localhost:5000/weatherbycity/${city}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
+        fetch(`http://localhost:5000/weatherbycity/${city}`)
         .then(response => response.json())
         .then(json => {
             const extractedAlerts = json.alerts || [];
