@@ -13,7 +13,7 @@ function DisasterCheckIn() {
     console.log("Status: ", status)
     const updatedJson = { "username": uname, "alertid" : alertid, "message": status === "I am fine" ? "0" : "1" };
     
-    fetch('/disasterCheckin', {
+    fetch('http://localhost:5000/disasterCheckin', {
         method: 'POST',
         headers: {
         'Content-Type': 'application/json',

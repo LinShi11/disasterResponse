@@ -17,7 +17,7 @@ function Alerts() {
         {
             const uname = {username: user};
             console.log(uname);
-            fetch('/getUserCity', {
+            fetch('http://localhost:5000/getUserCity', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -37,17 +37,18 @@ function Alerts() {
         }
       }, [navigate]);
 
-      const stateCheck = (e) => {
-        
-      }
-
 
       const weathercheck = (e) => {
 
         e.preventDefault();
         setCity(city);
 
-        fetch(`/weatherbycity/${city}`)
+        fetch(`http://localhost:5000/weatherbycity/${city}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
         .then(response => response.json())
         .then(json => {
             const extractedAlerts = json.alerts || [];

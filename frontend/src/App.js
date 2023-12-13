@@ -28,7 +28,7 @@ function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/alerts" element={<Alerts />} />
           <Route path="/sendAlert" element={<SendAlert />} />
-          <Route path="/disasterCheckin/:uname" element={<DisasterCheckIn />} />
+          <Route path="/disasterCheckin/:uname/:alertid" element={<DisasterCheckIn />} />
 
         </Routes>
       </div>

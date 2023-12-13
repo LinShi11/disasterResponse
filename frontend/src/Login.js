@@ -19,7 +19,7 @@ function Login() {
             password: password,
             userType: userType,
         };
-        fetch('/login', {
+        fetch('http://localhost:5000/login', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

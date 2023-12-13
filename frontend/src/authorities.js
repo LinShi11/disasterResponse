@@ -9,7 +9,7 @@ function AuthoritiesUpdate(){
     const dayOneHours = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"];
 
     useEffect(() => {
-    fetch('/home')
+    fetch('http://localhost:5000/home')
         .then(response => response.json())
         .then(json => setDataWeather(json))
         .catch(error => console.error(error));
@@ -19,12 +19,12 @@ function AuthoritiesUpdate(){
         e.preventDefault();
         setCity(city);
 
-        fetch(`/weatherbycity/${city}`)
+        fetch(`http://localhost:5000/weatherbycity/${city}`)
         .then(response => response.json())
         .then(json => setDataWeather(json))
         .catch(error => console.error(error));
 
-        fetch(`/weatherAlert/${city}`)
+        fetch(`http://localhost:5000/weatherAlert/${city}`)
         .then(response => response.json())
         .then(json => setStateAlert(json))
         .catch(error => console.error())

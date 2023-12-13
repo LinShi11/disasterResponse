@@ -31,7 +31,7 @@ function Settings() {
         }
         else
         {
-            fetch('/getUserInfo', {
+            fetch('http://localhost:5000/getUserInfo', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ function Settings() {
           },
         };
     
-        fetch('/updateUserInfo', {
+        fetch('http://localhost:5000/updateUserInfo', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

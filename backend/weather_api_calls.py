@@ -1,4 +1,5 @@
 from flask import Flask, request, Response, jsonify
+from flask_cors import CORS
 import jsonpickle
 import requests
 import random
@@ -8,8 +9,6 @@ import json
 from pymongo import MongoClient
 
 import bcrypt
-import flask
-import flask_login
 
 client = MongoClient('mongodb+srv://<username>:<password>@cluster0.tmwwaer.mongodb.net/?retryWrites=true&w=majority')
 
@@ -25,7 +24,7 @@ usersTable = {
 def weatherapi_current(city, data):
     ## api key
     ## current weather info
-    api_key = 'REDACTED'
+    api_key = 'key'
     city_modified = city.replace("%20", " ")
     air_quality = "yes"
     url = f'http://api.weatherapi.com/v1/current.json?key={api_key}&q={city_modified}&aqi={air_quality}'
@@ -44,7 +43,7 @@ def weatherapi_current(city, data):
         curr_data["rain_mm"] = weather_info["current"]["precip_mm"]
         curr_data["feels_like"] = weather_info["current"]["feelslike_c"]
         curr_data["uv"] = weather_info["current"]["uv"]
-        curr_data["air_quality_idx"] = weather_info["current"]["air_quality"]["us-epa-index"]
+        # curr_data["air_quality_idx"] = weather_info["current"]["air_quality"]["us-epa-index"]
         curr_data["condition"] = weather_info["current"]["condition"]["text"]
         curr_data["icon"] = weather_info["current"]["condition"]["icon"]
         data["current"] = curr_data
@@ -53,7 +52,7 @@ def weatherapi_current(city, data):
 
 def weatherapi_forecast(city, data):
     num_days = 2
-    api_key = "REDACTED"
+    api_key = "key"
     air_quality = "yes"
     alert = "yes"
     city_modified = city.replace("%20", " ")
@@ -80,7 +79,7 @@ def weatherapi_forecast(city, data):
             data[day]["rain_chance"] = weather_info["forecast"]["forecastday"][i]["day"]["daily_chance_of_rain"]
             data[day]["snow_chance"] = weather_info["forecast"]["forecastday"][i]["day"]["daily_chance_of_snow"]
             data[day]["uv"] = weather_info["forecast"]["forecastday"][i]["day"]["uv"]
-            data[day]["air_quality_today"] = weather_info['forecast']['forecastday'][i]['day']['air_quality']["us-epa-index"]
+            # data[day]["air_quality_today"] = weather_info['forecast']['forecastday'][i]['day']['air_quality']["us-epa-index"]
             data[day]["condition"] = weather_info["forecast"]["forecastday"][i]["day"]["condition"]["text"]
             data[day]["icon"] = weather_info["forecast"]["forecastday"][i]["day"]["condition"]["icon"]
             data[day]["sunrise"] = weather_info["forecast"]["forecastday"][i]["astro"]["sunrise"]
@@ -97,7 +96,7 @@ def weatherapi_forecast(city, data):
                 data[day][hour]["chance_of_rain"] = weather_info["forecast"]["forecastday"][i]["hour"][j]["chance_of_rain"]
                 data[day][hour]["chance_of_snow"] = weather_info["forecast"]["forecastday"][i]["hour"][j]["chance_of_snow"]
                 data[day][hour]["uv"] = weather_info["forecast"]["forecastday"][i]["hour"][j]["uv"]
-                data[day][hour]["air_quality"] = weather_info["forecast"]["forecastday"][i]["hour"][j]["air_quality"]["us-epa-index"]
+                # data[day][hour]["air_quality"] = weather_info["forecast"]["forecastday"][i]["hour"][j]["air_quality"]["us-epa-index"]
                 data[day][hour]["condition"] = weather_info["forecast"]["forecastday"][i]["hour"][j]["condition"]["text"]
                 data[day][hour]["icon"] = weather_info["forecast"]["forecastday"][i]["hour"][j]["condition"]["icon"]
 
@@ -164,42 +163,10 @@ def reverse_geocode(latitude, longitude):
 
 # Initialize the Flask application
 app = Flask(__name__)
-
-app.secret_key = 'super secret string'  # Change this
-
-login_manager = flask_login.LoginManager()
-login_manager.init_app(app)
+CORS(app)
 
 usersTable = db.users
 users_uname = usersTable.find({},{"username":1})
-
-class User(flask_login.UserMixin):
-    pass
-
-
-@login_manager.user_loader
-def user_loader(username):
-    global usersTable
-    user_type = session.get('userType', 'regular')
-    users_table = usersTable.get(user_type, db.users)
-    if username not in users_table:
-        return
-
-    user = User()
-    user.id = username
-    return user
-
-
-@login_manager.request_loader
-def request_loader(request):
-    global usersTable
-    username = request.form.get('username')
-    if username not in users_uname:
-        return
-
-    user = User()
-    user.id = username
-    return user
 
 
 @app.route('/home', methods=['GET'])
@@ -213,17 +180,6 @@ def getWeatherByCity(cityName):
     data = weatherapi_current(cityName, data)
 
     data = weatherapi_forecast(cityName, data)
-
-    #print(data) # Test the output
-    # converted_data = json.dumps(data)
-    # user_id = "1" # TODO: Change this to database retrieval later
-    # channel.basic_publish(exchange='direct_logs', routing_key=user_id, body=converted_data)
-    #print(" [x] Sent %r:%r" % (user_id, converted_data))
-    #print(data)
-
-    # response_pickled = jsonpickle.encode(data)
-    # return Response(response=response_pickled, status=200, mimetype="application/json")
-    #return jsonify(data, status=200, mimetype='application/json')
     return data
 
 
@@ -265,7 +221,7 @@ def login():
 
 
 def send_signup_message_to_rabbitmq(user_data):
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-container', 5672))
     channel = connection.channel()
 
     channel.queue_declare(queue='sign_up_queue', durable=True)
@@ -335,11 +291,6 @@ def signup():
 
 @app.route('/logout')
 def logout():
-    # flask_login.logout_user()
-    return flask.redirect(flask.url_for('login'))
-
-@login_manager.unauthorized_handler
-def unauthorized_handler():
     return flask.redirect(flask.url_for('login'))
 
 @app.route('/getUserCity', methods=['POST'])
@@ -363,7 +314,7 @@ def getCity():
         return jsonify({"city": "Not Found"})
 
 def send_db_updations_to_rabbitmq(data):
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-container', 5672))
     channel = connection.channel()
 
     channel.queue_declare(queue='updations_queue', durable=True)
@@ -406,7 +357,7 @@ def getUserInfo():
 
 
 def send_alert_insertions_to_rabbitmq(data):
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-container', 5672))
     channel = connection.channel()
 
     channel.queue_declare(queue='alert_insertions', durable=True)
@@ -446,7 +397,7 @@ def sendAlert():
     
 
 def send_checkin_updations_to_rabbitmq(data):
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-container', 5672))
     channel = connection.channel()
 
     channel.queue_declare(queue='checkin_updations', durable=True)

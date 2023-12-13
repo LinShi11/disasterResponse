@@ -14,7 +14,7 @@ function SendAlert(){
             city: city, 
         }
 
-        fetch('/SendAlert', {
+        fetch('http://localhost:5000/SendAlert', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

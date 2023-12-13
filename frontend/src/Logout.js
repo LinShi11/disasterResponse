@@ -5,7 +5,7 @@ function Logout() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetch('/logout') // Hit the logout endpoint
+        fetch('http://localhost:5000/logout') // Hit the logout endpoint
             .then(() => {
                 sessionStorage.clear();
                 navigate('/login'); // Redirect to the login page after logout

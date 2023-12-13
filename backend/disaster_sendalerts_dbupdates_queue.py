@@ -32,7 +32,7 @@ userstable = db.users
 
 
 # Establish connection with RabbitMQ
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-container', 5672))
 channel = connection.channel()
 
 # Declare a queue
@@ -51,8 +51,8 @@ def callback(ch, method, properties, body):
     print(output)
 
     content = f"""Given the current/upcoming weather conditions in your city, we want to ensure you are safe.
-                /n Please respond to the alert here: localhost:3000/disasterCheckin/{output["username"]}
-                /n Your safety is our priority, and we're here to assist in any way we can. """
+                Please respond to the alert here: http://localhost:3000/disasterCheckin/{output["username"]}/{user_data['alertid']}
+                Your safety is our priority, and we're here to assist in any way we can. """
 
     email_alert("[URGENT] Disaster Checkin", content, output["email"])
     print(f"Sent email to {output['username']}")

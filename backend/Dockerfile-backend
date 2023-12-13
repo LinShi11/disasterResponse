@@ -1,7 +1,7 @@
 FROM python:3.10
 
 ADD weather_api_calls.py /
-RUN pip3 install jsonpickle requests flask pika json pymongo bcrypt flask_login
+RUN pip3 install --upgrade jsonpickle requests flask pika pymongo bcrypt flask-cors
 
 RUN mkdir /app
 WORKDIR /app
@@ -10,7 +10,7 @@ COPY . /app
 
 EXPOSE 5000
 
-COPY entrypoint.sh /app/entrypoint.sh
+# COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 CMD ["/app/entrypoint.sh"]

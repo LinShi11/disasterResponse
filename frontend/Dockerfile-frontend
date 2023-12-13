@@ -1,0 +1,17 @@
+FROM node:20.10.0
+
+RUN mkdir /app
+WORKDIR /app
+
+ENV NODE_OPTIONS="--openssl-legacy-provider"
+
+# COPY /public /app
+# COPY /src /app
+# COPY package-lock.json /app
+# COPY package.json /app
+# COPY Dockerfile-frontend /app
+COPY . /app
+
+RUN npm install --silent
+
+CMD ["npm", "start"]

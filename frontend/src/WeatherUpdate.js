@@ -28,7 +28,7 @@ function WeatherUpdate(){
                 userType: userType,
             };
             console.log(uname);
-            fetch('/getUserCity', {
+            fetch('http://localhost:5000/getUserCity', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ function WeatherUpdate(){
       }, [navigate]);
 
 
-      fetch('/login', {
+      fetch('http://localhost:5000/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ function WeatherUpdate(){
         e.preventDefault();
         setCity(city);
 
-        fetch(`/weatherbycity/${city}`)
+        fetch(`http://localhost:5000/weatherbycity/${city}`)
         .then(response => response.json())
         .then(json => setData(json))
         .catch(error => console.error(error));
@@ -107,7 +107,7 @@ function WeatherUpdate(){
                             <p>Condition:  {data.current.condition}</p>
                             <p>Current Temp: {data.current.current_temp}</p>
                             <p>Feels like: {data.current.feels_like}</p>
-                            <p>Air quality index:  {data.current.air_quality_idx}</p>
+                            {/* <p>Air quality index:  {data.current.air_quality_idx}</p> */}
                             <p>Rain (mm): {data.current.rain_mm}</p>
                             <p>UV: {data.current.uv}</p>
                             <p>Wind Speed: {data.current.wind_speed}</p>
@@ -119,7 +119,7 @@ function WeatherUpdate(){
                             <p>Maximum Temp: {data["0"].maxtemp}</p>
                             <p>Minimum Temp: {data["0"].mintemp}</p>
                             <p>Average Temp: {data["0"].avgtemp}</p>
-                            <p>Air quality index:  {data["0"].air_quality_today}</p>
+                            {/* <p>Air quality index:  {data["0"].air_quality_today}</p> */}
                             <p>UV: {data["0"].uv}</p>
                             <p>Wind Speed: {data["0"].maxwind}</p>
                             <p>Chance of Rain: {data["0"].rain_chance}</p>
@@ -134,7 +134,7 @@ function WeatherUpdate(){
                             <p>Maximum Temp: {data["1"].maxtemp}</p>
                             <p>Minimum Temp: {data["1"].mintemp}</p>
                             <p>Average Temp: {data["1"].avgtemp}</p>
-                            <p>Air quality index:  {data["1"].air_quality_today}</p>
+                            {/* <p>Air quality index:  {data["1"].air_quality_today}</p> */}
                             <p>UV: {data["1"].uv}</p>
                             <p>Wind Speed: {data["1"].maxwind}</p>
                             <p>Chance of Rain: {data["1"].rain_chance}</p>
@@ -150,7 +150,7 @@ function WeatherUpdate(){
                         {dayOneHours.map((hour) => (
                             <div className="weather-box-forecast" align="left" key={hour}>
                                 <h5>{data["0"][hour].time.split(' ')[1]} <img src={data["0"][hour].icon} alt="Weather Icon" style={{ width: '20%', height: '20%' }} /> </h5>
-                                <p>AQI:  {data["0"][hour].air_quality}</p>
+                                {/* <p>AQI:  {data["0"][hour].air_quality}</p> */}
                                 <p>Rain: {data["0"][hour].chance_of_rain}</p>
                                 <p>Snow: {data["0"][hour].chance_of_snow}</p>
                                 <p>Condition:  {data["0"][hour].condition}</p>
@@ -169,7 +169,7 @@ function WeatherUpdate(){
                         {dayOneHours.map((hour) => (
                             <div className="weather-box-forecast" align="left" key={hour}>
                                 <h5>{data["1"][hour].time.split(' ')[1]} <img src={data["1"][hour].icon} alt="Weather Icon" style={{ width: '20%', height: '20%' }} /> </h5>
-                                <p>AQI:  {data["1"][hour].air_quality}</p>
+                                {/* <p>AQI:  {data["1"][hour].air_quality}</p> */}
                                 <p>Rain: {data["1"][hour].chance_of_rain}</p>
                                 <p>Snow: {data["1"][hour].chance_of_snow}</p>
                                 <p>Condition:  {data["1"][hour].condition}</p>
