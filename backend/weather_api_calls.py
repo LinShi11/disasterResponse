@@ -417,13 +417,13 @@ def disasterCheckin():
     data = request.get_json()
     uname = data.get('username')
     checkin = data.get('message')
-    alertid = data.get("alertid")
+    alertid = int(data.get("alertid"))
 
     disasterTable = db.disasterCheckin
     
     #Add to DB
-    if checkin == 0:
-        disasterTable.update_one({"userid": uname, "alertid": alertid}, {'$set': {'helpNeeded': 0}})
+    if checkin == "0":
+        disasterTable.update_one({"userid": uname, "alertid": alertid}, {'$set': {'helpNeeded': "0"}})
         return jsonify({"message": "Thank you for letting us know. Please reach out if you have any issues."})
     else:
     #Add to DB based on username and ---
@@ -469,7 +469,7 @@ def taskCheckin():
     uname = data.get('username')
     # checkin = data.get('message')
     taskId = data.get("task")
-    print(checkin)
+    # print(checkin)
 
     rescueTeamTable = db.rescue
     
