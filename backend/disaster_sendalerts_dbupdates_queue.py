@@ -13,7 +13,7 @@ def email_alert(subject, body, to):
     msg['to'] = to
     msg['from'] = "email"
     user = "user email"
-    password = "qihq uhwi splb uoei"
+    password = "google generated password"
     
     server = smtplib.SMTP("smtp.gmail.com", 587)
     server.starttls()
@@ -47,10 +47,11 @@ def callback(ch, method, properties, body):
 
     # Find the user id from users table based on the _id primary key
 
-    output = userstable.find_one({'_id': user_data["userid"]}, {"username": 1, "email": 1})
+    output = userstable.find_one({'username': user_data["userid"]}, {"username": 1, "email": 1})
+    print(output)
 
     content = f"""Given the current/upcoming weather conditions in your city, we want to ensure you are safe.
-                /n Please respond to the alert here: https://www.localhost:3000/disasterCheckin/{output["username"]}
+                /n Please respond to the alert here: localhost:3000/disasterCheckin/{output["username"]}
                 /n Your safety is our priority, and we're here to assist in any way we can. """
 
     email_alert("[URGENT] Disaster Checkin", content, output["email"])

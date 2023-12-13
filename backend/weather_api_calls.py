@@ -423,25 +423,25 @@ def send_alert_insertions_to_rabbitmq(data):
     connection.close()
 
 
-@app.route('/sendAlert', methods=['POST'])
+@app.route('/SendAlert', methods=['POST'])
 def sendAlert():
     data = request.get_json()  # get city, auth_username
     auth_uname = data.get('username')
     city = data.get('city')
     random_alert_id = random.randint(10000000, 99999999) # Create a random alert id 
-    authoritiesTable = db.users
-    authority_document = authoritiesTable.find_one({"username": auth_uname}, {"_id": 1})
-    authid = authority_document['_id']
-
+    print(random_alert_id)
+    authoritiesTable = db.authorities
+    
     # update the authorities table with this latest alert id
     authoritiesTable.update_one({'username': auth_uname}, {'$set': {'latestAlert': random_alert_id}})
 
     usersTable = db.users
-    users_matching_city_and_preference = usersTable.find({"address.city": city, "preference.contact": True}, {"_id": 1})
+    users_matching_city_and_preference = usersTable.find({"address.city": city, "preference.contact": True}, {"username": 1})
 
     for user in users_matching_city_and_preference:
-        send_data = {"userid": user['_id'], "alertid": random_alert_id, "authid": authid, "helpNeeded": '1'}
+        send_data = {"userid": user['username'], "alertid": random_alert_id, "authid": auth_uname, "helpNeeded": '1'}
         send_alert_insertions_to_rabbitmq(send_data)
+    return jsonify({"message": "Alert sent"})
 
     
 
@@ -468,11 +468,18 @@ def disasterCheckin():
     data = request.get_json()
     uname = data.get('username')
     checkin = data.get('message')
+    alertid = data.get("alertid")
+    print(checkin)
 
+    disasterTable = db.disasterCheckin
+    
     #Add to DB
-
+    if checkin == 0:
+        disasterTable.update_one({"userid": uname, "alertid": alertid}, {'$set': {'helpNeeded': 0}})
+        return jsonify({"message": "Thank you for letting us know. Please reach out if you have any issues."})
+    else:
     #Add to DB based on username and ---
-    return jsonify({"message": "Thanks for checking in. We'll make sure you receive help!"})
+        return jsonify({"message": "Thanks for checking in. We'll make sure you receive help!"})
 
 
 

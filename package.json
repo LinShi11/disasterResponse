@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "mongodb": "^6.3.0",
-    "react-router-dom": "^6.19.0",
-    "styled-components": "^6.1.1"
-  }
-}

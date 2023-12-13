@@ -5,12 +5,13 @@ import "./disasterCheckin.css";
 function DisasterCheckIn() {
   const [response, setResponse] = useState('');
   const { uname } = useParams();
+  const { alertid } = useParams();
   const [returnval, setReturnval] = useState('');
 
   const handleResponse = (status) => {
     setResponse(status);
     console.log("Status: ", status)
-    const updatedJson = { "username": uname, "message": status === "I am fine" ? "0" : "1" };
+    const updatedJson = { "username": uname, "alertid" : alertid, "message": status === "I am fine" ? "0" : "1" };
     
     fetch('/disasterCheckin', {
         method: 'POST',
