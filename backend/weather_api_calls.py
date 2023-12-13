@@ -221,7 +221,7 @@ def login():
 
 
 def send_signup_message_to_rabbitmq(user_data):
-    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-container', 5672))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-service', 5672))
     channel = connection.channel()
 
     channel.queue_declare(queue='sign_up_queue', durable=True)
@@ -314,7 +314,7 @@ def getCity():
         return jsonify({"city": "Not Found"})
 
 def send_db_updations_to_rabbitmq(data):
-    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-container', 5672))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-service', 5672))
     channel = connection.channel()
 
     channel.queue_declare(queue='updations_queue', durable=True)
@@ -357,7 +357,7 @@ def getUserInfo():
 
 
 def send_alert_insertions_to_rabbitmq(data):
-    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-container', 5672))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-service', 5672))
     channel = connection.channel()
 
     channel.queue_declare(queue='alert_insertions', durable=True)
@@ -376,6 +376,7 @@ def send_alert_insertions_to_rabbitmq(data):
 
 @app.route('/SendAlert', methods=['POST'])
 def sendAlert():
+    print("In send alert function")
     data = request.get_json()  # get city, auth_username
     auth_uname = data.get('username')
     city = data.get('city')
@@ -397,7 +398,7 @@ def sendAlert():
     
 
 def send_checkin_updations_to_rabbitmq(data):
-    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-container', 5672))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-service', 5672))
     channel = connection.channel()
 
     channel.queue_declare(queue='checkin_updations', durable=True)

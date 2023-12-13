@@ -14,7 +14,7 @@ usersTable = db.users
 
 
 # Establish connection with RabbitMQ
-connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-container', 5672))
+connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-service', 5672))
 channel = connection.channel()
 
 # Declare a queue
