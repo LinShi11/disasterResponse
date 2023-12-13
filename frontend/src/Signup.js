@@ -148,20 +148,6 @@ function Signup() {
                 Regular User
               </label>
             </div>
-            <div className="form-check form-check-inline">
-              <input
-                className="form-check-input"
-                type="radio"
-                name="userType"
-                id="rescueTeam"
-                value="rescue"
-                checked={userType === 'rescue'}
-                onChange={() => setUserType('rescue')}
-              />
-              <label className="form-check-label" htmlFor="rescueTeam">
-                Rescue Team
-              </label>
-            </div>
           </div>
 
                 </div>

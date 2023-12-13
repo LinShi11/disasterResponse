@@ -104,7 +104,7 @@ function Alerts() {
                 </div>
             </div>
 
-            <div className="d-flex justify-content-center">
+            {/* <div className="d-flex justify-content-center">
                 <form className="d-flex" onSubmit={weathercheck}>
                     <div className="input-group">
                         <input
@@ -123,7 +123,7 @@ function Alerts() {
                         </button>
                     </div>
                 </form>
-            </div>
+            </div> */}
 
 
         </div>
