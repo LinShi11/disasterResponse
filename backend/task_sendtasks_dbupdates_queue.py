@@ -4,7 +4,6 @@ import smtplib
 from email.message import EmailMessage
 from pymongo import MongoClient
 
-
 def email_alert(subject, body, to):
     msg = EmailMessage()
     msg.set_content(body)
@@ -12,7 +11,7 @@ def email_alert(subject, body, to):
     msg['subject'] = subject
     msg['to'] = to
     msg['from'] = "email"
-    user = "user email"
+    user = "user name"
     password = "google generated password"
     
     server = smtplib.SMTP("smtp.gmail.com", 587)

@@ -10,6 +10,7 @@ from pymongo import MongoClient
 
 import bcrypt
 
+
 client = MongoClient('mongodb+srv://<username>:<password>@cluster0.tmwwaer.mongodb.net/?retryWrites=true&w=majority')
 
 db = client.disasterResponse
@@ -43,6 +44,7 @@ def weatherapi_current(city, data):
         curr_data["rain_mm"] = weather_info["current"]["precip_mm"]
         curr_data["feels_like"] = weather_info["current"]["feelslike_c"]
         curr_data["uv"] = weather_info["current"]["uv"]
+        # The api cannot give air_quality information during the night; thus, removing it
         # curr_data["air_quality_idx"] = weather_info["current"]["air_quality"]["us-epa-index"]
         curr_data["condition"] = weather_info["current"]["condition"]["text"]
         curr_data["icon"] = weather_info["current"]["condition"]["icon"]
@@ -107,13 +109,14 @@ def weatherapi_forecast(city, data):
                 alert[key] = value
             all_alerts.append(alert)
         data["alerts"] = all_alerts
-        print(data)
     return data
 
+# used to get state wide alert
+# uses weather.gov api
+# only need the state information, must be in abbreviation
 def weathergov(state):
 
     # Note: all states must be in abbreviation
-    state = "CO"
     url = f'https://api.weather.gov/alerts/active?area={state}'
     response = requests.get(url)
     state_alert = []
@@ -125,10 +128,9 @@ def weathergov(state):
             for key, value in element['properties'].items():
                 alert[key] = value
             state_alert.append(alert)
-    print(len(state_alert))
     return state_alert
 
-
+# Used to find the latitude and longitude of a city information
 def geocode(city):
     # Finding: not that sensitive. Will give the city location at the very least
     api_key = "key"
@@ -141,11 +143,11 @@ def geocode(city):
 
     if response.status_code == 200:
         data = response.json()
-        print(data)
         latitude = data['addresses'][0]['latitude']
         longitude = data['addresses'][0]['longitude']
 
 
+# Used to find the address given the latitude and longitude information
 def reverse_geocode(latitude, longitude):
     api_key = "key"
     url = f"https://api.radar.io/v1/geocode/reverse"
@@ -154,25 +156,26 @@ def reverse_geocode(latitude, longitude):
     params = {"coordinates": coordinates}
 
     response = requests.get(url, headers = headers, params = params)
-    print(response.status_code)
     if response.status_code == 200:
         data = response.json()
-        print(data["addresses"][0]['county'])
-        print(data["addresses"][0]['city'])
-        print(data["addresses"][0]['neighborhood'])
+        county = (data["addresses"][0]['county'])
+        city = (data["addresses"][0]['city'])
+        neighborhood = (data["addresses"][0]['neighborhood'])
 
-# Initialize the Flask application
+
+# Initialize the Flask application, CORS is used to resolve issues with CORS from User interface
 app = Flask(__name__)
 CORS(app)
 
 usersTable = db.users
 users_uname = usersTable.find({},{"username":1})
 
-
+# default home page for testing
 @app.route('/home', methods=['GET'])
 def home():
     return jsonify("Hello World")
 
+# gets the weather based on city
 @app.route('/weatherbycity/<cityName>', methods=['GET'])
 def getWeatherByCity(cityName):
     data = {}
@@ -182,17 +185,15 @@ def getWeatherByCity(cityName):
     data = weatherapi_forecast(cityName, data)
     return data
 
-
-
+# gets the state wide weather alerts
 @app.route('/weatherAlert/<state>', methods=['GET'])
 def getStateAlert(state):
     data = {}
-    # TODO: change cityName to the proper state
     data = weathergov(state)
 
     return data
 
-
+# log in request, checks the appropriate table 
 @app.route('/login', methods=['POST'])
 def login():
     global usersTable
@@ -201,7 +202,8 @@ def login():
     uname = data.get('username')
     pwd = data.get('password')
     user_type = data.get("userType")
-    
+
+    # access the correct table
     if(user_type == "authority"):
         usersTable = db.authorities
     elif (user_type == "rescue team"):
@@ -209,34 +211,24 @@ def login():
     user_document = usersTable.find_one({"username": uname})
     if user_document:
         hashed_password = user_document.get('password')
-
         if bcrypt.checkpw(pwd.encode('utf-8'), hashed_password):
-            # user = User()
-            # user.id = uname
-            # flask_login.login_user(user)
             return jsonify({"message": "Login successful"})
 
     # Authentication failed
     return jsonify({"message": "Invalid credentials"}), 401
 
-
+# send the sign up message to the queue
 def send_signup_message_to_rabbitmq(user_data):
     connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-service', 5672))
     channel = connection.channel()
 
     channel.queue_declare(queue='sign_up_queue', durable=True)
-    # print(user_data)
     try:
         json_data = json.dumps(user_data)
     except Exception as e:
         print(e)
         
-    
-    # print("Type of user_data:", type(user_data))
-    # print("Type of json_data:", type(json_data))
-    # print("Serialized user_data:", json_data)
     print("Sending signup message to RabbitMQ")
-    # user_data = "helloworld"
     channel.basic_publish(exchange='',
                           routing_key='sign_up_queue',
                           body=json.dumps(user_data),
@@ -246,9 +238,9 @@ def send_signup_message_to_rabbitmq(user_data):
     print("Sent signup message to RabbitMQ")
     connection.close()
 
+# sign up route
 @app.route('/signup', methods=['POST'])
 def signup():
-    # TODO: make sure username is unqiue
     try:
         data = request.get_json()
         nm = data.get("name")
@@ -285,14 +277,12 @@ def signup():
         return jsonify({"message": "Signup failed"}), 401
 
 
-# TODO: Duplicate the login and signup endpoints for authorities and rescue teams once the code is tested
-
-
-
+# log out page 
 @app.route('/logout')
 def logout():
     return flask.redirect(flask.url_for('login'))
 
+# get the user city which is stored differently based on the table
 @app.route('/getUserCity', methods=['POST'])
 def getCity():
     data = request.get_json()
@@ -313,6 +303,7 @@ def getCity():
     else:
         return jsonify({"city": "Not Found"})
 
+# send the updated profile to rabbitMQ
 def send_db_updations_to_rabbitmq(data):
     connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-service', 5672))
     channel = connection.channel()
@@ -330,8 +321,7 @@ def send_db_updations_to_rabbitmq(data):
     print("Sent updation message to RabbitMQ")
     connection.close()
 
-
-
+# update user profile route
 @app.route('/updateUserInfo', methods=['POST'])
 def userInfo():
     if request.method == 'POST':
@@ -341,7 +331,7 @@ def userInfo():
         return jsonify({"message": "Update successful"})
 
 
-
+# get the user profile route
 @app.route('/getUserInfo', methods=['POST'])
 def getUserInfo():
     data = request.get_json()
@@ -352,7 +342,7 @@ def getUserInfo():
     if user_document:
         return jsonify(user_document)
 
-
+# send alert messages to rabbitMQ
 def send_alert_insertions_to_rabbitmq(data):
     connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-service', 5672))
     channel = connection.channel()
@@ -370,15 +360,13 @@ def send_alert_insertions_to_rabbitmq(data):
     print("Sent updation message to RabbitMQ")
     connection.close()
 
-
+# send alert route
 @app.route('/SendAlert', methods=['POST'])
 def sendAlert():
-    print("In send alert function")
     data = request.get_json()  # get city, auth_username
     auth_uname = data.get('username')
     city = data.get('city')
     random_alert_id = random.randint(10000000, 99999999) # Create a random alert id 
-    print(random_alert_id)
     authoritiesTable = db.authorities
     
     # update the authorities table with this latest alert id
@@ -393,7 +381,7 @@ def sendAlert():
     return jsonify({"message": "Alert sent"})
 
     
-
+# sends the check update to rabbitMQ
 def send_checkin_updations_to_rabbitmq(data):
     connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-service', 5672))
     channel = connection.channel()
@@ -411,7 +399,7 @@ def send_checkin_updations_to_rabbitmq(data):
     print("Sent checkin updation message to RabbitMQ")
     connection.close()
 
-
+#disaster checkin route
 @app.route('/disasterCheckin', methods=['POST'])
 def disasterCheckin():
     data = request.get_json()
@@ -429,7 +417,7 @@ def disasterCheckin():
     #Add to DB based on username and ---
         return jsonify({"message": "Thanks for checking in. We'll make sure you receive help!"})
 
-
+# insert task to rabbitMQ
 def send_task_insertions_to_rabbitmq(data):
     connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-service', 5672))
     channel = connection.channel()
@@ -447,34 +435,31 @@ def send_task_insertions_to_rabbitmq(data):
     print("Sent updation message to RabbitMQ")
     connection.close()
 
+# send task route
 @app.route('/sendTask', methods=['POST'])
 def sendTask():
-    data = request.get_json()  # get city, auth_username
+    data = request.get_json()  
     auth_uname = data.get('username')
     message = data.get("message")
-    # city = data.get('city')
-    random_task_id = random.randint(10000000, 99999999) # Create a random alert id 
+    random_task_id = random.randint(10000000, 99999999)  
     print(random_task_id)
     rescueTeam = db.rescue
     
-    # update the authorities table with this latest alert id
     rescueTeam.update_one({'username': auth_uname}, {'$set': {'task': random_task_id, "availability": "1", "message": message}})
     send_data = {'username': auth_uname, 'task': random_task_id, "message": message}
     send_task_insertions_to_rabbitmq(send_data)
     return jsonify({"message": "Task sent"})
 
+# task checkin route
 @app.route('/taskCheckin', methods=['POST'])
 def taskCheckin():
     data = request.get_json()
     uname = data.get('username')
-    # checkin = data.get('message')
     taskId = data.get("task")
-    # print(checkin)
 
     rescueTeamTable = db.rescue
     
     #Add to DB
-    
     rescueTeamTable.update_one({"username": uname}, {'$set': {'availability': "0", "task": "0", "message": ""}})
     return jsonify({"message": "Thank you for letting us know. We will reach out with another task"})
 

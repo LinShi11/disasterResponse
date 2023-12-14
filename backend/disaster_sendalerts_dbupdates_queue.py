@@ -4,7 +4,6 @@ import smtplib
 from email.message import EmailMessage
 from pymongo import MongoClient
 
-
 def email_alert(subject, body, to):
     msg = EmailMessage()
     msg.set_content(body)

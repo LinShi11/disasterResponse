@@ -6,6 +6,7 @@ from pymongo import MongoClient
 import datetime
 import bcrypt
 
+
 client = MongoClient('mongodb+srv://<username>:<password>@cluster0.tmwwaer.mongodb.net/?retryWrites=true&w=majority')
 
 db = client.disasterResponse
