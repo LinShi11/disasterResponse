@@ -12,7 +12,10 @@ Develop a comprehensive platform that delivers real-time weather updates and dis
 https://drive.google.com/file/d/1zvWGO2c4vx92jG0ddOgkQ7veX8DNarNE/view?usp=sharing
 
 ### Project Slides: 
-A copy of it is stored in resourcese and in https://docs.google.com/presentation/d/1JrFl2acCm7aG1gnPMf-we0XP0gDQNl5J/edit?usp=sharing&ouid=110826723018297273464&rtpof=true&sd=true 
+A copy of it is stored in resourcese and in https://docs.google.com/presentation/d/1JrFl2acCm7aG1gnPMf-we0XP0gDQNl5J/edit?usp=sharing&ouid=110826723018297273464&rtpof=true&sd=true
+
+### Project report: 
+https://docs.google.com/document/d/1ZnGLcSQE9IfoxsAXn7XMFOyshHuKBIiDZlI3TcVT5Oc/edit?usp=sharing
 
 You need to provide us access to your code repository.
 
