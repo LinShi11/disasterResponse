@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: maka4477/backend:v2
+        image: lish7086/backend:v3
         ports:
         - containerPort: 5000  # Port your Flask app is listening on
         # Add other backend configuration here (env vars, volumes, etc.)

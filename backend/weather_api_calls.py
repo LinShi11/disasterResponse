@@ -431,7 +431,7 @@ def disasterCheckin():
 
 
 def send_task_insertions_to_rabbitmq(data):
-    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-container', 5672))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-service', 5672))
     channel = connection.channel()
 
     channel.queue_declare(queue='task_insertions', durable=True)
@@ -458,9 +458,9 @@ def sendTask():
     rescueTeam = db.rescue
     
     # update the authorities table with this latest alert id
-    rescueTeam.update_one({'username': auth_uname}, {'$set': {'task': random_task_id, "availability": false, "message": message}})
+    rescueTeam.update_one({'username': auth_uname}, {'$set': {'task': random_task_id, "availability": "1", "message": message}})
     send_data = {'username': auth_uname, 'task': random_task_id, "message": message}
-    send_alert_insertions_to_rabbitmq(send_data)
+    send_task_insertions_to_rabbitmq(send_data)
     return jsonify({"message": "Task sent"})
 
 @app.route('/taskCheckin', methods=['POST'])
@@ -475,7 +475,7 @@ def taskCheckin():
     
     #Add to DB
     
-    rescueTeamTable.update_one({"username": uname}, {'$set': {'availability': true, "task": "0", "message": ""}})
+    rescueTeamTable.update_one({"username": uname}, {'$set': {'availability': "0", "task": "0", "message": ""}})
     return jsonify({"message": "Thank you for letting us know. We will reach out with another task"})
 
 

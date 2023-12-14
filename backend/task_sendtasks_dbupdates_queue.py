@@ -29,7 +29,7 @@ db = client.disasterResponse
 drTable = db.rescue
 
 # Establish connection with RabbitMQ
-connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-container', 5672))
+connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq-service', 5672))
 channel = connection.channel()
 
 # Declare a queue
@@ -39,11 +39,11 @@ channel.queue_declare(queue='task_insertions', durable=True)
 def callback(ch, method, properties, body):
     
     user_data = json.loads(body)
-    drTable.insert_one(user_data)
     print("Updated team data in the rescue table")
+    output = drTable.find_one({'username': user_data["username"]}, {"username": 1, "email": 1})
 
     content = f"""{user_data["message"]}
-                Please respond to the task here: http://localhost:3000/disasterCheckin/{output["username"]}/{user_data['task']}"""
+                Please respond to the task here: http://localhost:3000/taskCheckin/{output["username"]}/{user_data['task']}"""
 
     email_alert("[URGENT] Tasks Checkin", content, output["email"])
     print(f"Sent email to {output['username']}")
